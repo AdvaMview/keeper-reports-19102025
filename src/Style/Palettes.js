@@ -1,0 +1,75 @@
+export const palettes = [
+  {
+    name: "dark",
+    background: "#181818",
+    surface: "#282C34",
+    text: "#e6e5e8",
+    textSecondary: "#b0b0b0",
+    border: "1px solid rgba(255, 255, 255, 0.12)",
+    borderRadius: "8px",
+    error: "#cf6679",
+    primary: {
+      main: "#1e88e5",
+      light: "#6ab7ff",
+      dark: "#005cb2",
+      contrastText: "#ffffff",
+    },
+    secondary: {
+      main: "#ff4081",
+      light: "#ff79b0",
+      dark: "#c60055",
+      contrastText: "#ffffff",
+    },
+  },
+  {
+    name: "light",
+    background: "#ffffff",
+    surface: "#f5f5f5",
+    text: "#022f63ff",
+    textSecondary: "#757575",
+    border: "#e0e0e0",
+    borderRadius: "8px",
+    error: "#d32f2f",
+    primary: {
+      main: "#1976d2",
+      light: "#63a4ff",
+      dark: "#004ba0",
+      contrastText: "#ffffff",
+    },
+    secondary: {
+      main: "#e91e63",
+      light: "#ff6090",
+      dark: "#b0003a",
+      contrastText: "#ffffff",
+    },
+  },
+];
+
+
+
+// export const palettes = [
+//   {
+//     name: "dark",
+//     background: "#181818",
+//     surface: "#282C34",  //"#232323",
+//     primary: "#1e88e5",
+//     secondary: "#ff4081",
+//     text: "#e6e5e8",//"#e0e0e0",
+//     textSecondary: "#b0b0b0",
+//     border: "border: 1px solid rgba(255, 255, 255, 0.12)",//"#333",
+//     borderRadius: "8px",
+//     error: "#cf6679",
+//   },
+//   {
+//     name: "white",
+//     background: "#ffffff",
+//     surface: "#f5f5f5",
+//     primary: "#1976d2",
+//     secondary: "#e91e63",
+//     text: "#212121",
+//     textSecondary: "#757575",
+//     border: "#e0e0e0",
+//     borderRadius: "8px",
+//     error: "#d32f2f",
+//   },
+// ];
