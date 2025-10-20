@@ -10,7 +10,7 @@ function Logo({ type, ...props }) {
 
   return (
     <>
-      <img style={{ height: '10rem', paddingTop: '4px' }}
+      <img style={{ height: '8rem', paddingTop: '4px' }}
         alt="Logo"
         src={`/static/${LOGOS[color][type]}`}
         {...props}

@@ -10,7 +10,7 @@ const Layout = () => {
         <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: palette.background }}>
             <Header />
             <div style={{ display: 'flex', flex: 1 }}>
-                {/* <SideMenu /> */}
+                <SideMenu />
                 <div style={{ flex: 1}}>
                     <Outlet />
                 </div>

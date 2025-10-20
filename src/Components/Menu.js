@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Logo from "../Logo";
+import Logo from "./Logo";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import { useSelector } from "react-redux";
 
 const Menu = ({ isOpen, handleClose }) => {
   const ref = useRef();
   const navigate = useNavigate();
-  const palette = useSelector(state => state.appSettings.selectedPalette);
+  const palette = useSelector((state) => state.appSettings.selectedPalette);
 
   useEffect(() => {
     if (isOpen) {
@@ -22,40 +22,111 @@ const Menu = ({ isOpen, handleClose }) => {
   const handleItemClick = (route) => {
     handleClose();
     navigate(route);
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-  }
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  };
+
   const styles = {
-  
-  }
-   return (
-    <div className='menu-container' ref={ref}>
-      <div
-        style={{
-          position: 'absolute',
-          top: 20,
-          right: 20,
-          cursor: 'pointer',
-          fontSize: '24px',
-        }}
-        onClick={handleClose}
-      >
-        <CloseOutlinedIcon />
-      </div>
-      <div className='menu'>
-        <div className='menu-item' onClick={() => handleItemClick('/Dashboard')}>
-          <div className='menu-item-header'>ראשי</div>
+    container: {
+      width: "15rem",
+      height: "100vh",
+      position: "fixed",
+      top: 0,
+      right: "-20rem",
+      zIndex: 7,
+    },
+    closeIcon: {
+      position: "absolute",
+      top: 20,
+      right: 20,
+      cursor: "pointer",
+      fontSize: "24px",
+    },
+    menu: {
+      backgroundColor: palette.surface,
+      width: "15rem",
+      height: "100%",
+      paddingTop: "6rem",
+      boxShadow: palette.boxShadow,
+    },
+    menuItem: {
+      display: "flex",
+      width: "100%",
+      height: "6rem",
+      flexWrap: "wrap",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignContent: "center",
+      alignItems: "center",
+      borderBottom: palette.border,
+      cursor: "pointer",
+    },
+    menuItemHeader: {
+      fontSize: "1.5rem",
+    },
+    footer: {
+      position: "absolute",
+      bottom: 0,
+      width: "100%",
+      textAlign: "center",
+    },
+  };
+
+  return (
+    <>
+      <style>
+        {`
+        .menu-container {
+          /* בכל מקרה, ריק */
+        }
+      
+        .open {
+          animation: openAni 0.7s ease-out forwards;
+        }
+
+        .close {
+          animation: closeAni 0.7s ease-out forwards;
+        }
+      
+        @keyframes openAni {
+          0% { right: -20rem; }
+          100% { right: 0; }
+        }
+
+        @keyframes closeAni {
+          0% { right: 0; }
+          100% { right: -20rem; }
+        }
+        `}
+      </style>
+      <div style={styles.container} ref={ref}>
+        <div style={styles.closeIcon} onClick={handleClose}>
+          <CloseOutlinedIcon />
         </div>
-        <div className='menu-item' onClick={() => handleItemClick('/Reports')}>
-          <div className='menu-item-header'>דוחות</div>
+        <div style={styles.menu}>
+          <div
+            style={styles.menuItem}
+            onClick={() => handleItemClick("/Dashboard")}
+          >
+            <div style={styles.menuItemHeader}>ראשי</div>
+          </div>
+          <div
+            style={styles.menuItem}
+            onClick={() => handleItemClick("/Reports")}
+          >
+            <div style={styles.menuItemHeader}>דוחות</div>
+          </div>
+          <div
+            style={styles.menuItem}
+            onClick={() => handleItemClick("/settings")}
+          >
+            <div style={styles.menuItemHeader}>הגדרות</div>
+          </div>
         </div>
-        <div className='menu-item' onClick={() => handleItemClick('/settings')}>
-          <div className='menu-item-header'>הגדרות</div>
+        <div style={styles.footer}>
+          <Logo type="full" />
         </div>
       </div>
-      <div style={{ position: 'absolute', bottom: 0, width: '100%', textAlign: 'center' }}>
-        <Logo type='full' />
-      </div>
-    </div>
+    </>
   );
 };
 

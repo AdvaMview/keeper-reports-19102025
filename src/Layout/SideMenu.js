@@ -3,9 +3,9 @@ import { useSettings } from '../Hooks/useSettings';
 import { menuItems } from '../Config/Menu';
 import Logo from '../Components/Logo';
 import Card from '../Components/Card';
-import Button from '../Components/Button';
+// import Button from '../Components/Button';
 import { useSelector } from "react-redux";
-
+import Button from "@mui/material/Button";
 
 const SideMenu = () => {
     const navigate = useNavigate();

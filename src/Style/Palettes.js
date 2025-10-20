@@ -7,6 +7,7 @@ export const palettes = [
     textSecondary: "#b0b0b0",
     border: "1px solid rgba(255, 255, 255, 0.12)",
     borderRadius: "8px",
+    boxShadow: "-4px 10px 67px -5px rgba(0, 0, 0, 0.22)",
     error: "#cf6679",
     primary: {
       main: "#1e88e5",
@@ -29,6 +30,7 @@ export const palettes = [
     textSecondary: "#757575",
     border: "#e0e0e0",
     borderRadius: "8px",
+    boxShadow: "-4px 10px 67px -5px rgba(0, 0, 0, 0.22)",
     error: "#d32f2f",
     primary: {
       main: "#1976d2",
@@ -44,8 +46,6 @@ export const palettes = [
     },
   },
 ];
-
-
 
 // export const palettes = [
 //   {

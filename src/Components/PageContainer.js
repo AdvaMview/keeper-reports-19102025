@@ -1,5 +1,5 @@
-import Card from '../Components/Card';
 import { useSelector } from 'react-redux';
+import Card from '../Components/Card';
 
 const PageContainer = ({ title, children }) => {
     const palette = useSelector(state => state.appSettings.selectedPalette);

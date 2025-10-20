@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useSettings } from "../Hooks/useSettings";
-import Card from "../Components/Card";
-import Selector from "../Components/Selector";
 import { useTheme } from "../Hooks/useTheme";
 import { useSelector } from "react-redux";
 import { Toggle } from "../Components/Toggle";
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import Menu from "../Components/Menu/Menu";
+import Card from '../Components/Card';
+
+// import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+// import Menu from "../Components/Menu";
+// import Selector from "../Components/Selector";
 
 const Header = () => {
   const settings = useSettings();
@@ -69,16 +70,16 @@ const Header = () => {
     <Card>
       <header style={styles.header} dir={dir}>
         <>
-          <MenuOutlinedIcon
+          {/* <MenuOutlinedIcon
             style={{ cursor: "pointer", fontSize: "28px", margin: "10px" }}
             onClick={() => setSidebarOpen(!isSidebarOpen)}
-          />
+          /> */}
 
           {/* ה־Sidebar */}
-          <Menu
+          {/* <Menu
             isOpen={isSidebarOpen}
             handleClose={() => setSidebarOpen(false)}
-          />
+          /> */}
         </>
         {/* User side */}
         <div style={styles.side}>
@@ -99,11 +100,11 @@ const Header = () => {
             onChange={(theme) => selectPaletteHandler(theme)}
             options={themeOptions}
           /> */}
+          <Toggle
+            handleChange={handleTogglePalette}
+            isChecked={currentPalette === "dark"}
+          />
         </div>
-        <Toggle
-          handleChange={handleTogglePalette}
-          isChecked={currentPalette === "dark"}
-        />
       </header>
     </Card>
   );

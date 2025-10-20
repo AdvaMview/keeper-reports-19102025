@@ -1,9 +1,9 @@
-import { MdHome, MdSettings, MdReport } from 'react-icons/md';
-import { FaHome, FaCog, FaFileAlt } from 'react-icons/fa';
+import HomeIcon from "@mui/icons-material/Home";
+import SettingsIcon from "@mui/icons-material/Settings";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 
 export const menuItems = [
-    { name: 'HOME', route: '/', icon: <MdHome /> },
-    // { name: 'DASHBOARD', route: '/dashboard', icon: <FaHome /> },
-    { name: 'REPORTS', route: '/reports', icon: <MdReport /> },
-    { name: 'SETTINGS', route: '/settings', icon: <MdSettings /> },    
+  { name: "HOME", route: "/", icon: <HomeIcon /> },
+  { name: "REPORTS", route: "/reports", icon: <AssessmentIcon /> },
+  { name: "SETTINGS", route: "/settings", icon: <SettingsIcon /> },
 ];
