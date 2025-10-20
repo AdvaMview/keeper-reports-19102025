@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../store/userAccountSlice";
-import { Toggle } from "../Components/Toggle";
-import { useTheme } from "../Hooks/useTheme";
 import {
   Button,
   Card,
@@ -22,7 +20,7 @@ const Login = () => {
   const palette = useSelector((state) => state.appSettings.selectedPalette);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { selectPalette } = useTheme();
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,31 +38,16 @@ const Login = () => {
     fetchLogin({ userName, password });
   };
 
-  const currentPalette = (palette?.name || palette?.value || "light")
-    .toString()
-    .toLowerCase();
-
-  const handleTogglePalette = () => {
-    const next = currentPalette === "dark" ? "light" : "dark";
-    selectPalette(next);
-  };
 
   return (
     <>
-      <Box display="flex" justifyContent="flex-end" m={2}>
-        <Toggle
-          handleChange={handleTogglePalette}
-          isChecked={currentPalette === "dark"}
-        />
-      </Box>
-
       <Box
         sx={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
-          background: palette?.background,
+          background: palette.background,
         }}
       >
         <Card

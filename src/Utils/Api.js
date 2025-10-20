@@ -43,3 +43,30 @@ export async function GetBIReports() {
 
     return response.json();
 }
+
+export async function logout() {
+    //await sleep(2000);
+    const options = JSON.parse(localStorage.getItem('options'));
+    try {
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}Auth/Logout`, options);
+
+        if (response.status === 401) {
+            localStorage.clear();
+            window.location.href = '/login';
+            return false;
+        }
+
+        if (!response.ok) {
+            throw { message: 'Failed to Logout.', status: 500 };
+        }
+        localStorage.clear();
+        window.location.href = '/login';
+        return response.json();
+
+    } catch (error) {
+        console.error('Logout error:', error);
+        localStorage.clear();
+        window.location.href = '/login';
+        throw error;
+    }
+}

@@ -17,6 +17,7 @@ export function useTheme() {
     const found = palettes.find((p) => p.name === saved);
     return found || palettes[0];
   }
+
   const [isDarkMode, setIsDarkMode] = useState(false);
   const palette = palettes.find((p) => p.name === paletteName) || palettes[0];
 

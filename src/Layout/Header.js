@@ -5,6 +5,7 @@ import { useTheme } from "../Hooks/useTheme";
 import { useSelector } from "react-redux";
 import { Toggle } from "../Components/Toggle";
 
+
 // import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 // import Menu from "../Components/Menu";
 // import Selector from "../Components/Selector";
@@ -85,7 +86,6 @@ const Header = () => {
         <div style={styles.side}>
           <span>{user?.firstName || "Guest"}</span>
         </div>
-
         {/* Title */}
         <h1 style={styles.title}>{settings.texts.APP_TITLE}</h1>
 
