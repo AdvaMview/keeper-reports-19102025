@@ -75,10 +75,6 @@ const Menu = ({ isOpen, handleClose }) => {
     <>
       <style>
         {`
-        .menu-container {
-          /* בכל מקרה, ריק */
-        }
-      
         .open {
           animation: openAni 0.7s ease-out forwards;
         }

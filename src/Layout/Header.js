@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useSettings } from "../Hooks/useSettings";
+import Card from "../Components/Card";
 import { useTheme } from "../Hooks/useTheme";
 import { useSelector } from "react-redux";
 import { Toggle } from "../Components/Toggle";
-import Card from '../Components/Card';
 
 // import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 // import Menu from "../Components/Menu";
@@ -100,11 +100,11 @@ const Header = () => {
             onChange={(theme) => selectPaletteHandler(theme)}
             options={themeOptions}
           /> */}
-          <Toggle
-            handleChange={handleTogglePalette}
-            isChecked={currentPalette === "dark"}
-          />
         </div>
+        <Toggle
+          handleChange={handleTogglePalette}
+          isChecked={currentPalette === "dark"}
+        />
       </header>
     </Card>
   );

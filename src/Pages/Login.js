@@ -1,14 +1,19 @@
 import { login } from "../Utils/Api";
 import { useNavigate } from "react-router-dom";
-//import { palette } from '../Hooks/themeSignal';
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../store/userAccountSlice";
-import { useSelector } from "react-redux";
 import { Toggle } from "../Components/Toggle";
 import { useTheme } from "../Hooks/useTheme";
-import Button from "@mui/material/Button";
-import { Input } from '@mui/material';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  TextField,
+  Typography,
+  Box,
+} from "@mui/material";
 
 const Login = () => {
   const [userName, setUserName] = useState("");
@@ -21,9 +26,8 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Replace with your authentication logic
-    if (userName === "" || password === "") {
-      setError("Please enter both userName and password.");
+    if (!userName || !password) {
+      setError("Please enter both user name and password.");
       return;
     }
     setError("");
@@ -34,13 +38,8 @@ const Login = () => {
       navigate("/Dashboard");
     };
     fetchLogin({ userName, password });
-    //alert('Logged in!');
   };
 
-  const handleLogin = () => {
-    localStorage.setItem("accessToken", "test-token");
-    window.location.href = "/";
-  };
   const currentPalette = (palette?.name || palette?.value || "light")
     .toString()
     .toLowerCase();
@@ -49,70 +48,118 @@ const Login = () => {
     const next = currentPalette === "dark" ? "light" : "dark";
     selectPalette(next);
   };
+
   return (
     <>
-      <div>
+      <Box display="flex" justifyContent="flex-end" m={2}>
         <Toggle
           handleChange={handleTogglePalette}
           isChecked={currentPalette === "dark"}
         />
-      </div>
+      </Box>
 
-      <div
-        style={{
-          maxWidth: 400,
-          margin: "40px auto",
-          padding: 24,
-          border: palette.border,
-          borderRadius: 8,
-          background: palette.surface,
-          color: palette.text,
-          boxShadow: "0 2px 8px rgba(240, 0, 0, 0.08)",
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          background: palette?.background,
         }}
       >
-        <h2 style={{ color: palette.primary, marginBottom: 24 }}>Login</h2>
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ color: palette.textSecondary }}>User Name:</label>
-            <Input></Input>
-          </div>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ color: palette.textSecondary }}>Password:</label>
-            <Input></Input>
-          </div>
-          {error && (
-            <div
-              style={{
-                color: palette.error,
-                marginBottom: 16,
-                background: palette.background,
-                padding: 8,
-                borderRadius: 4,
-                border: palette.error,
-              }}
-            >
-              {error}
-            </div>
-          )}
-          <Button type="submit">Login</Button>
-        </form>
-        {/* <button
-                onClick={handleLogin}
-                style={{
-                    width: '100%',
-                    padding: 10,
-                    background: palette.secondary,
-                    color: palette.text,
-                    border: 'none',
-                    borderRadius: 4,
-                    fontWeight: 500,
-                    fontSize: '1rem',
-                    cursor: 'pointer'
+        <Card
+          sx={{
+            width: 400,
+            borderRadius: 3,
+            boxShadow: palette.boxShadow  ,
+            background: palette?.surface ,
+            color: palette?.text ,
+            border: `1px solid ${palette?.border}`,
+          }}
+        >
+          <CardHeader
+            title="Login"
+            titleTypographyProps={{
+              variant: "h5",
+              align: "center",
+              sx: { color: palette?.primary , fontWeight: 600 },
+            }}
+          />
+
+          <CardContent>
+            <form onSubmit={handleSubmit}>
+              <TextField
+                fullWidth
+                label="User Name"
+                variant="outlined"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                margin="normal"
+                InputProps={{
+                  sx: {
+                    color: palette?.text,
+                    background: palette.background,
+                  },
                 }}
-            >
-                Login with Test Token
-            </button> */}
-      </div>
+              />
+
+              <TextField
+                fullWidth
+                type="password"
+                label="Password"
+                variant="outlined"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                margin="normal"
+          
+                InputProps={{
+                  sx: {
+                    color: palette?.text,
+                    background: palette.background,
+                  },
+                }}
+              />
+
+              {error && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: palette?.error || "red",
+                    mt: 1,
+                    mb: 1,
+                    background: palette?.surface,
+                    p: 1,
+                    borderRadius: 1,
+                    direction: "ltr",
+                    border: `1px solid ${palette?.error || "red"}`,
+                  }}
+                >
+                  {error}
+                </Typography>
+              )}
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{
+                  mt: 2,
+                  py: 1.2,
+                  background: palette?.primary ,
+                  color: palette?.onPrimary ,
+                  fontWeight: 600,
+                  borderRadius: 2,
+                  "&:hover": {
+                    background: palette?.primaryHover,
+                  },
+                }}
+              >
+                Login
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </Box>
     </>
   );
 };
