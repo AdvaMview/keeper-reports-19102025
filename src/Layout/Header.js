@@ -5,10 +5,6 @@ import { useTheme } from "../Hooks/useTheme";
 import { useSelector } from "react-redux";
 import { Switch } from "@mui/material";
 
-// import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-// import Menu from "../Components/Menu";
-// import Selector from "../Components/Selector";
-
 const Header = () => {
   const settings = useSettings();
   const { selectPalette } = useTheme();
