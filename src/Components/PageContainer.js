@@ -14,7 +14,7 @@ const PageContainer = ({ title, children }) => {
         flex: 1,
         display: "flex",
         flexDirection: "column",
-        backgroundColor: palette.background,
+        // backgroundColor: palette.background,
         padding: 0,
         margin: 0,
       }}
@@ -33,7 +33,7 @@ const PageContainer = ({ title, children }) => {
           <Typography
             variant="h5"
             sx={{
-              color: palette.primary.main,
+              color: palette.text,
               fontWeight: "bold",
               mb: 2,
             }}

@@ -8,19 +8,30 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import theme from "./Hooks/themeFonts";
+import { muiThemes } from "./Style/themeAdapter";
+import { Provider, useSelector } from "react-redux";
+import store from "./store";
+
+// קומפוננטה שמחברת בין Redux ל־ThemeProvider
+const ThemedApp = () => {
+  const themeName = useSelector((state) => state.appSettings.theme);
+  const theme = muiThemes[themeName] || muiThemes.light;
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
+  );
+};
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <ThemeProvider theme={theme}>
-    <CssBaseline />
+  <Provider store={store}>
     <React.StrictMode>
-      <App />
+      <ThemedApp />
     </React.StrictMode>
-  </ThemeProvider>
+  </Provider>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
