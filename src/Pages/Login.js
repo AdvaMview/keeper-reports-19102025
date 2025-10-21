@@ -35,10 +35,30 @@ const Login = () => {
     }
     setError("");
     const fetchLogin = async (post) => {
-      const result = await login(post);
-      dispatch(setUser(result));
-      localStorage.setItem("accessToken", result.accessToken);
-      navigate("/Dashboard");
+      try {
+        const result = await login(post);
+        if (!result?.accessToken) {
+          setError("Login failed: no token received.");
+          return;
+        }
+        localStorage.setItem("accessToken", result.accessToken);
+        localStorage.setItem(
+          "options",
+          JSON.stringify({
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${result.accessToken}`,
+            },
+          })
+        );
+
+        dispatch(setUser(result));
+        navigate("/Dashboard");
+      } catch (err) {
+        console.error("Login error:", err);
+        setError("שם משתמש או סיסמה שגויים.");
+      }
     };
     fetchLogin({ userName, password });
   };

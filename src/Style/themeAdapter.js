@@ -1,5 +1,5 @@
 import { createTheme } from "@mui/material/styles";
-import { heIL } from "@mui/material/locale"; 
+import { heIL } from "@mui/material/locale";
 import { palettes } from "./Palettes";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -63,7 +63,7 @@ export const muiThemes = palettes.reduce((acc, p) => {
         },
       },
     },
-    heIL // מוסיף תמיכה ב־RTL וטקסט עברי אוטומטי
+    heIL
   );
 
   acc[p.name] = theme;

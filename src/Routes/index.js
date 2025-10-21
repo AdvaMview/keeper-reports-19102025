@@ -7,16 +7,18 @@ import Layout from '../Layout/Layout';
 import ErrorPage from '../Pages/ErrorPage';
 import Reports from '../Pages/Reports';
 import Settings from '../Pages/Settings';
+import PrivateRoute from "./PrivateRoute";
 
-const isAuthenticated = () => {
-    //TODO check auth token validity
-    return !!localStorage.getItem('accessToken');
-};
+// const isAuthenticated = () => {
+//     //TODO check auth token validity
+//     return !!localStorage.getItem('accessToken');
+// };
 
-// PrivateRoute wrapper for React Router v6
-const PrivateRoute = ({ children }) => {
-    return isAuthenticated() ? children : <Navigate to="/Login" replace />;
-};
+// // PrivateRoute wrapper for React Router v6
+// const PrivateRoute = ({ children }) => {
+//     return isAuthenticated() ? children :
+//      <Navigate to="/Login" replace />;
+// };
 
 const RoutesComp = () => (
     <Routes>

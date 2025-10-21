@@ -46,30 +46,3 @@ export const palettes = [
     },
   },
 ];
-
-// export const palettes = [
-//   {
-//     name: "dark",
-//     background: "#181818",
-//     surface: "#282C34",  //"#232323",
-//     primary: "#1e88e5",
-//     secondary: "#ff4081",
-//     text: "#e6e5e8",//"#e0e0e0",
-//     textSecondary: "#b0b0b0",
-//     border: "border: 1px solid rgba(255, 255, 255, 0.12)",//"#333",
-//     borderRadius: "8px",
-//     error: "#cf6679",
-//   },
-//   {
-//     name: "white",
-//     background: "#ffffff",
-//     surface: "#f5f5f5",
-//     primary: "#1976d2",
-//     secondary: "#e91e63",
-//     text: "#212121",
-//     textSecondary: "#757575",
-//     border: "#e0e0e0",
-//     borderRadius: "8px",
-//     error: "#d32f2f",
-//   },
-// ];

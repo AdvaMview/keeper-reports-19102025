@@ -12,7 +12,6 @@ import { muiThemes } from "./Style/themeAdapter";
 import { Provider, useSelector } from "react-redux";
 import store from "./store";
 
-// קומפוננטה שמחברת בין Redux ל־ThemeProvider
 const ThemedApp = () => {
   const themeName = useSelector((state) => state.appSettings.theme);
   const theme = muiThemes[themeName] || muiThemes.light;
