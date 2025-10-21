@@ -3,8 +3,7 @@ import { useSettings } from "../Hooks/useSettings";
 import Card from "../Components/Card";
 import { useTheme } from "../Hooks/useTheme";
 import { useSelector } from "react-redux";
-import { Toggle } from "../Components/Toggle";
-
+import { Switch } from "@mui/material";
 
 // import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 // import Menu from "../Components/Menu";
@@ -15,16 +14,9 @@ const Header = () => {
   const { selectPalette } = useTheme();
   const palette = useSelector((state) => state.appSettings.selectedPalette);
   const user = useSelector((state) => state.userAccount?.user);
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   // detect direction from settings or fallback
   const dir = settings?.direction || "ltr"; // "ltr" | "rtl"
-  const themeOptions = Object.entries(settings?.THEMES || {}).map(
-    ([key, label]) => ({
-      value: key.toLowerCase(),
-      label: label,
-    })
-  );
 
   // current palette name as lowercase (fallback to 'light')
   const currentPalette = (palette?.name || palette?.value || "light")
@@ -39,7 +31,7 @@ const Header = () => {
 
   const styles = {
     header: {
-      color: palette?.text || "#000",
+      color: palette.text,
       position: "sticky",
       width: "calc(100vw - 85px)",
       top: 0,
@@ -70,18 +62,6 @@ const Header = () => {
   return (
     <Card>
       <header style={styles.header} dir={dir}>
-        <>
-          {/* <MenuOutlinedIcon
-            style={{ cursor: "pointer", fontSize: "28px", margin: "10px" }}
-            onClick={() => setSidebarOpen(!isSidebarOpen)}
-          /> */}
-
-          {/* ה־Sidebar */}
-          {/* <Menu
-            isOpen={isSidebarOpen}
-            handleClose={() => setSidebarOpen(false)}
-          /> */}
-        </>
         {/* User side */}
         <div style={styles.side}>
           <span>{user?.firstName || "Guest"}</span>
@@ -91,20 +71,12 @@ const Header = () => {
 
         {/* Theme selector side */}
         <div style={styles.side}>
-          {/* <Selector
-            value={
-              themeOptions.find(
-                (f) => f.value.toLowerCase() === palette.name?.toLowerCase()
-              )?.value
-            }
-            onChange={(theme) => selectPaletteHandler(theme)}
-            options={themeOptions}
-          /> */}
+          <Switch
+            checked={currentPalette === "dark"}
+            onChange={handleTogglePalette}
+            color="default"
+          />
         </div>
-        <Toggle
-          handleChange={handleTogglePalette}
-          isChecked={currentPalette === "dark"}
-        />
       </header>
     </Card>
   );

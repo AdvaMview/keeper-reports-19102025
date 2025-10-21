@@ -1,42 +1,44 @@
-import { useTheme } from "../Hooks/useTheme";
+// src/Components/Card.jsx
+import { Paper, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 
-const Card = ({ title, subtitle, style, children }) => {
+const Card = ({ title, subtitle, sx = {}, children }) => {
   const palette = useSelector((state) => state.appSettings.selectedPalette);
-  
-  const styles = {
-    card: {
-      border: palette.border,
-      borderRadius: palette.borderRadius || "8px",
-      background: palette.surface,
-      color: palette.text,
-      padding: "8px",
-      margin: "8px",
-      boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-    },
-    title: {
-      color: palette.primary.main,
-      fontSize: "18px",
-      fontWeight: "bold",
-      marginBottom: "8px",
-    },
-    subtitle: {
-      color: palette.textSecondary,
-      fontSize: "14px",
-      marginBottom: "12px",
-    },
-    content: {
-      fontSize: "14px",
-    },
-  };
 
   return (
-    <div style={{ ...styles.card, ...style }}>
-      {title && <div style={styles.title}>{title}</div>}
-      {subtitle && <div style={styles.subtitle}>{subtitle}</div>}
-      <div style={styles.content}>{children}</div>
-    </div>
-    // <div style={{ ...styles.card, ...style }}>{children}</div>
+    <Paper
+      elevation={4}
+      sx={{
+        borderRadius: 2,
+        padding: 2,
+        margin: 1,
+        backgroundColor: palette.surface,
+        color: palette.text,
+        ...sx,
+      }}
+    >
+      {title && (
+        <Typography
+          variant="h6"
+          sx={{
+            color: palette.primary.main,
+            fontWeight: "bold",
+            mb: 1,
+          }}
+        >
+          {title}
+        </Typography>
+      )}
+      {subtitle && (
+        <Typography
+          variant="subtitle2"
+          sx={{ color: palette.textSecondary, mb: 1 }}
+        >
+          {subtitle}
+        </Typography>
+      )}
+      {children}
+    </Paper>
   );
 };
 

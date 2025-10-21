@@ -1,26 +1,51 @@
-import { useSelector } from 'react-redux';
-import Card from '../Components/Card';
+// src/Components/PageContainer.jsx
+import { Container, Typography } from "@mui/material";
+import { useSelector } from "react-redux";
+import Card from "../Components/Card";
 
 const PageContainer = ({ title, children }) => {
-    const palette = useSelector(state => state.appSettings.selectedPalette);
-    console.log('PageContainer component rendered');
+  const palette = useSelector((state) => state.appSettings.selectedPalette);
 
-    return (
-        <Card
-            style={{
-                marginTop: 0,
-                marginLeft: 0,
-                marginRight: 0,
-                width: 'calc(100% - 60px)',
-                backgroundColor: palette.surface,
-                minHeight: '85vh',
-                padding: 24,
+  return (
+    <Container
+      maxWidth={false}
+      disableGutters
+      sx={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: palette.background,
+        padding: 0,
+        margin: 0,
+      }}
+    >
+      <Card
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          margin: "8px 16px",
+          padding: 3,
+        }}
+      >
+        {title && (
+          <Typography
+            variant="h5"
+            sx={{
+              color: palette.primary.main,
+              fontWeight: "bold",
+              mb: 2,
             }}
-            title={title}
-        >
-            {children}
-        </Card>
-    );
+          >
+            {title}
+          </Typography>
+        )}
+
+        <div style={{ flex: 1 }}>{children}</div>
+      </Card>
+    </Container>
+  );
 };
 
 export default PageContainer;
