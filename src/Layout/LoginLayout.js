@@ -8,7 +8,7 @@ const LoginLayout = () => {
 
   const styles = {
     container: {
-      height: "100vh", 
+      height: "99vh", 
       width: "100vw",  
       display: "flex",
       flexDirection: "column",
@@ -38,11 +38,9 @@ const LoginLayout = () => {
       <div style={styles.header}>
         <Header />
       </div>
-
       <div style={styles.inner}>
         <Outlet />
       </div>
-
       <div style={styles.footer}>
         <Logo type="full" />
       </div>

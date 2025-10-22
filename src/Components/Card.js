@@ -7,13 +7,14 @@ const Card = ({ title, subtitle, sx = {}, children }) => {
 
   return (
     <Paper
-      elevation={4}
+      elevation={2}
       sx={{
         borderRadius: 2,
         padding: 2,
         margin: 1,
         backgroundColor: palette.surface,
         color: palette.text,
+        // boxShadow: palette.boxShadow,
         ...sx,
       }}
     >

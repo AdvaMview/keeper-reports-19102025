@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../store/userAccountSlice";
 import { useSettings } from "../Hooks/useSettings";
-
 import {
   Button,
   Card,
@@ -30,7 +29,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!userName || !password) {
-      setError("Please enter both user name and password.");
+      setError(settings.texts.ERR_REQUIRED_FIELDS);
       return;
     }
     setError("");
@@ -38,7 +37,7 @@ const Login = () => {
       try {
         const result = await login(post);
         if (!result?.accessToken) {
-          setError("Login failed: no token received.");
+          setError(settings.texts.ERR_NO_TOKEN);
           return;
         }
         localStorage.setItem("accessToken", result.accessToken);
@@ -57,41 +56,23 @@ const Login = () => {
         navigate("/Dashboard");
       } catch (err) {
         console.error("Login error:", err);
-        setError("שם משתמש או סיסמה שגויים.");
+        setError(settings.texts.ERR_INVALID_LOGIN);
       }
     };
     fetchLogin({ userName, password });
   };
+
   return (
     <Box
       dir={dir}
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        minWidth: "100vw",
-        background: palette.background,
-        overflow: "hidden",
-      }}
     >
-      <Card
-        sx={{
-          width: 400,
-          borderRadius: 3,
-          boxShadow: palette.boxShadow,
-          background: palette?.surface,
-          color: palette?.text,
-          border: `1px solid ${palette?.border}`,
-          textAlign: dir === "rtl" ? "right" : "left",
-        }}
-      >
+      <Card sx={{ width: 400, p: 2, boxShadow: 3 }}>
         <CardHeader
           title={settings.texts.ENTERANCE}
           titleTypographyProps={{
             variant: "h5",
             align: "center",
-            sx: { color: palette?.primary, fontWeight: 600 },
+            sx: { color: palette?.primary},
           }}
         />
 
@@ -104,13 +85,6 @@ const Login = () => {
               value={userName}
               onChange={(e) => setUserName(e.target.value)}
               margin="normal"
-              placeholder={settings.texts.USERNAME}
-              slotProps={{
-                input: {
-                  dir: dir,
-                  style: { textAlign: dir === "rtl" ? "right" : "left" },
-                },
-              }}
               InputProps={{
                 sx: {
                   color: palette?.text,
@@ -153,7 +127,6 @@ const Login = () => {
                   background: palette?.surface,
                   p: 1,
                   borderRadius: 1,
-                  direction: "ltr",
                   border: `1px solid ${palette?.error || "red"}`,
                 }}
               >
@@ -171,13 +144,12 @@ const Login = () => {
                 background: palette?.primary,
                 color: palette?.onPrimary,
                 fontWeight: 600,
-                borderRadius: 2,
+                borderRadius: 1.5,
                 "&:hover": {
                   background: palette?.primaryHover,
                 },
               }}
             >
-              {/* <h1 style={styles.title}>{settings.texts.APP_TITLE}</h1> */}
               {settings.texts.ENTER}
             </Button>
           </form>

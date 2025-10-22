@@ -7,23 +7,14 @@ import { Switch } from "@mui/material";
 
 const Header = () => {
   const settings = useSettings();
-  const { selectPalette } = useTheme();
+
+  const { theme, toggleDarkMode } = useTheme();
+
   const palette = useSelector((state) => state.appSettings.selectedPalette);
   const user = useSelector((state) => state.userAccount?.user);
 
   // detect direction from settings or fallback
   const dir = settings?.direction || "ltr"; // "ltr" | "rtl"
-
-  // current palette name as lowercase (fallback to 'light')
-  const currentPalette = (palette?.name || palette?.value || "light")
-    .toString()
-    .toLowerCase();
-
-  // Toggle between light and dark and call selectPalette
-  const handleTogglePalette = () => {
-    const next = currentPalette === "dark" ? "light" : "dark";
-    selectPalette(next);
-  };
 
   const styles = {
     header: {
@@ -68,8 +59,8 @@ const Header = () => {
         {/* Theme selector side */}
         <div style={styles.side}>
           <Switch
-            checked={currentPalette === "dark"}
-            onChange={handleTogglePalette}
+            checked={theme === "dark"}
+            onChange={toggleDarkMode}
             color="default"
           />
         </div>

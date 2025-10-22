@@ -19,16 +19,7 @@ const PageContainer = ({ title, children }) => {
         margin: 0,
       }}
     >
-      <Card
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-          margin: "8px 16px",
-          padding: 3,
-        }}
-      >
+      <Card>
         {title && (
           <Typography
             variant="h5"

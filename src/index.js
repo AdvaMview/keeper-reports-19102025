@@ -3,32 +3,27 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+
+// 🩶 פונטים של MUI
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
-import { ThemeProvider, CssBaseline } from "@mui/material";
-import { muiThemes } from "./Style/themeAdapter";
-import { Provider, useSelector } from "react-redux";
+
+// 🧱 Redux Store
+import { Provider } from "react-redux";
 import store from "./store";
 
-const ThemedApp = () => {
-  const themeName = useSelector((state) => state.appSettings.theme);
-  const theme = muiThemes[themeName] || muiThemes.light;
-
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
-  );
-};
+// 🎨 Theme Adapter - עוטף את כל האפליקציה עם נושא הצבעים שלך
+import ThemeAdapter from "./Components/ThemeAdapter";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <React.StrictMode>
-      <ThemedApp />
+      <ThemeAdapter>
+        <App />
+      </ThemeAdapter>
     </React.StrictMode>
   </Provider>
 );
