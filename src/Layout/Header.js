@@ -1,9 +1,10 @@
-import { useState } from "react";
+// import { useState } from "react";
 import { useSettings } from "../Hooks/useSettings";
 import Card from "../Components/Card";
 import { useTheme } from "../Hooks/useTheme";
 import { useSelector } from "react-redux";
 import { Switch } from "@mui/material";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 const Header = () => {
   const settings = useSettings();
@@ -49,20 +50,19 @@ const Header = () => {
   return (
     <Card>
       <header style={styles.header} dir={dir}>
-        {/* User side */}
         <div style={styles.side}>
           <span>{user?.firstName || "Guest"}</span>
         </div>
-        {/* Title */}
+
         <h1 style={styles.title}>{settings.texts.APP_TITLE}</h1>
 
-        {/* Theme selector side */}
         <div style={styles.side}>
           <Switch
             checked={theme === "dark"}
             onChange={toggleDarkMode}
             color="default"
           />
+          <SettingsIcon />
         </div>
       </header>
     </Card>

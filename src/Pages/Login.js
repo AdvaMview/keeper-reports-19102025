@@ -65,6 +65,14 @@ const Login = () => {
   return (
     <Box
       dir={dir}
+      sx={{
+        minWidth: "100vW",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: palette.background,
+        color: palette.text,
+      }}
     >
       <Card sx={{ width: 400, p: 2, boxShadow: 3 }}>
         <CardHeader
@@ -72,7 +80,7 @@ const Login = () => {
           titleTypographyProps={{
             variant: "h5",
             align: "center",
-            sx: { color: palette?.primary},
+            sx: { color: palette.primary },
           }}
         />
 

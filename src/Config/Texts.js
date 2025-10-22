@@ -1,4 +1,5 @@
-export default {
+// src/Config/Texts.js
+const TextHe = {
   DASHBOARD: "ראשי",
   SETTINGS: "הגדרות",
   SAVE_SETTINGS: "שמור הגדרות",
@@ -20,10 +21,7 @@ export default {
   ENTERANCE: "כניסה למערכת",
   USERNAME: "שם משתמש",
   PASSWORD: "סיסמא",
-  FORGOT_PASSWORD: "?שכחת סיסמא",
-  FORGOT_PASSWORD_INSTRUCTIONS:
-    "הכנס/י את כתובת המייל שלך ונשלח קישור לאיפוס הסיסמה.",
-  FORGOT_PASSWORD_SENT: "נשלח מייל לאיפוס הסיסמה. בדקי את תיבת הדואר שלך.",
+  FORGOT_PASSWORD: "שכחת סיסמא",
   SEND: "שלח",
   BACK_TO_LOGIN: "חזרה להתחברות",
   IMAGE: "תמונה",
@@ -47,4 +45,7 @@ export default {
   ERR_INVALID_LOGIN: "שם משתמש או סיסמה שגויים.",
   ERR_REQUIRED_FIELDS: "אנא מלא/י את כל השדות.",
   ERR_NO_TOKEN: "הכניסה נכשלה — לא התקבל אסימון גישה.",
+  LOADER_DATA : "טוען נתונים...",
 };
+
+export default TextHe;

@@ -11,7 +11,7 @@ const Layout = () => {
             <Header />
             <div style={{ display: 'flex', flex: 1 }}>
                 <SideMenu />
-                <div style={{ flex: 1}}>
+                <div style={{ flex: 1 , height: '100%', overflowY: 'auto',}}>
                     <Outlet />
                 </div>
             </div>

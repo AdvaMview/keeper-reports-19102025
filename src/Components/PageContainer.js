@@ -14,7 +14,6 @@ const PageContainer = ({ title, children }) => {
         flex: 1,
         display: "flex",
         flexDirection: "column",
-        // backgroundColor: palette.background,
         padding: 0,
         margin: 0,
       }}

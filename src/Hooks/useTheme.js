@@ -11,14 +11,12 @@ export function useTheme() {
   const dispatch = useDispatch();
   const { selectedPalette, theme } = useSelector((state) => state.appSettings);
 
-  // שליפה ראשונית של הפלטה מהאחסון
   const paletteName = localStorage.getItem(PALETTE_KEY);
   const palette =
     palettes.find((p) => p.name === paletteName) ||
     palettes.find((p) => p.name === selectedPalette?.name) ||
     palettes[0];
 
-  // 🔄 סנכרון בין theme לפלטה
   useEffect(() => {
     const expectedPaletteName = theme === "dark" ? "dark" : "light";
     if (palette.name.toLowerCase() !== expectedPaletteName) {
@@ -28,7 +26,6 @@ export function useTheme() {
     }
   }, [theme, dispatch, palette]);
 
-  // 💾 שמירה ב-localStorage
   useEffect(() => {
     const isLoggingOut = localStorage.getItem(LOGOUT_FLAG) === "true";
     if (isLoggingOut) return;
@@ -37,7 +34,6 @@ export function useTheme() {
     localStorage.setItem(THEME_KEY, theme);
   }, [palette, theme]);
 
-  // בחירת פלטה לפי שם
   const selectPalette = (name) => {
     const selected = palettes.find((p) => p.name === name);
     if (selected) {
@@ -50,9 +46,8 @@ export function useTheme() {
     }
   };
 
-  // מתג למעבר בין light/dark
   const toggleDarkMode = () => {
-    const nextTheme = theme === "light" ? "light" : "light";
+    const nextTheme = theme === "light" ? "dark" : "light";
     dispatch(setSetting({ key: "theme", value: nextTheme }));
 
     const nextPalette = palettes.find(

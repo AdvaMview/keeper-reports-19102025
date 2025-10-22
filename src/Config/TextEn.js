@@ -1,4 +1,5 @@
-export default {
+// src/Config/TextEn.js
+const TextEn = {
   DASHBOARD: "Dashboard",
   SETTINGS: "Settings",
   SAVE_SETTINGS: "Save Settings",
@@ -21,9 +22,6 @@ export default {
   USERNAME: "Username",
   PASSWORD: "Password",
   FORGOT_PASSWORD: "Forgot Password",
-  FORGOT_PASSWORD_INSTRUCTIONS:
-    "Enter your email and we'll send you a reset link.",
-  FORGOT_PASSWORD_SENT: "A reset link has been sent to your email.",
   SEND: "Send",
   BACK_TO_LOGIN: "Back to Login",
   IMAGE: "Image",
@@ -47,4 +45,7 @@ export default {
   ERR_INVALID_LOGIN: "Incorrect username or password.",
   ERR_REQUIRED_FIELDS: "Please fill in all required fields.",
   ERR_NO_TOKEN: "Login failed: no access token received.",
+  LOADER_DATA : "Loading data...",
 };
+
+export default TextEn;
