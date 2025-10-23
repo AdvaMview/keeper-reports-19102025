@@ -47,6 +47,8 @@ const TextHe = {
   ERR_NO_TOKEN: "הכניסה נכשלה — לא התקבל אסימון גישה.",
   LOADER_DATA : "טוען נתונים...",
   GUEST : "אורח",
+  LIGHT_MODE : "מצב בהיר",
+  DARK_MODE : "מצב כהה",
 };
 
 export default TextHe;

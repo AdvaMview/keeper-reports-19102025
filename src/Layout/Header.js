@@ -11,18 +11,22 @@ import SettingsUser from "../Pages/SettingsUser";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
 import Menu from "../Components/Menu";
+import { useLocation } from "react-router-dom";
 
 const Header = () => {
   const settings = useSettings();
   const palette = useSelector((state) => state.appSettings.selectedPalette);
   const user = useSelector((state) => state.userAccount?.user);
   const dir = settings?.direction || "ltr";
+  const location = useLocation();
 
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
 
   const isTablet = useMediaQuery("(max-width: 1024px)");
+
+  const isLoginPage = location.pathname.toLowerCase().includes("/login");
 
   return (
     <Paper
@@ -44,8 +48,8 @@ const Header = () => {
       }}
       dir={dir}
     >
-        <SettingsUser />
-
+      {!isLoginPage}
+      <SettingsUser />
       <Box
         sx={{
           display: "flex",
@@ -60,6 +64,7 @@ const Header = () => {
           {user.firstName || settings.texts.GUEST}
         </Typography>
       </Box>
+
       <Typography
         variant="h5"
         sx={{
@@ -81,14 +86,12 @@ const Header = () => {
           gap: 1.5,
         }}
       >
-
-        {isTablet && (
+        {!isLoginPage && isTablet && (
           <IconButton
             onClick={toggleMenu}
             sx={{
               color: palette.text,
               display: "flex",
-
               backgroundColor: "transparent",
               "&:hover": { backgroundColor: "rgba(0,0,0,0.05)" },
             }}
@@ -97,8 +100,10 @@ const Header = () => {
           </IconButton>
         )}
       </Box>
-      {isTablet && <Menu isOpen={isOpen} handleClose={closeMenu} />}
-      {isTablet && isOpen && (
+      {!isLoginPage && isTablet && (
+        <Menu isOpen={isOpen} handleClose={closeMenu} />
+      )}
+      {!isLoginPage && isTablet && isOpen && (
         <div
           onClick={closeMenu}
           style={{

@@ -66,7 +66,9 @@ const SettingsUser = () => {
             <Brightness4Icon sx={{ color: palette.text }} />
           </ListItemIcon>
           <ListItemText>
-            {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            {theme === "dark"
+              ? settings.texts.LIGHT_MODE
+              : settings.texts.DARK_MODE}
           </ListItemText>
           <Switch
             checked={theme === "dark"}
@@ -84,7 +86,7 @@ const SettingsUser = () => {
             <ListItemIcon>
               <LogoutIcon sx={{ color: palette.text }} />
             </ListItemIcon>
-            <ListItemText primary="Logout" />
+            <ListItemText primary={settings.texts.LOG_OUT || "Logout"} />
           </MenuItem>,
         ]}
       </Menu>

@@ -45,8 +45,10 @@ const TextEn = {
   ERR_INVALID_LOGIN: "Incorrect username or password.",
   ERR_REQUIRED_FIELDS: "Please fill in all required fields.",
   ERR_NO_TOKEN: "Login failed: no access token received.",
-  LOADER_DATA : "Loading data...",
-   GUEST : "Guest",
+  LOADER_DATA: "Loading data...",
+  GUEST: "Guest",
+  LIGHT_MODE: "Light Mode",
+  DARK_MODE: "Dark Mode",
 };
 
 export default TextEn;

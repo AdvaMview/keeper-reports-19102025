@@ -46,9 +46,16 @@ const Menu = ({ isOpen, handleClose }) => {
       height: "100vh",
       position: "fixed",
       top: 0,
-      [isRTL ? "left" : "right"]: "-20rem",
+      [isRTL ? "left" : "right"]: 0,
+      transform: isOpen
+        ? "translateX(0)"
+        : isRTL
+        ? "translateX(-100%)"
+        : "translateX(100%)",
+      transition: "transform 0.6s ease",
       zIndex: 9,
     },
+
     closeIcon: {
       position: "absolute",
       top: 20,
@@ -94,40 +101,47 @@ const Menu = ({ isOpen, handleClose }) => {
     <>
       <style>
         {`
-        .open {
-          animation: ${
-            isRTL ? "openFromLeft" : "openFromRight"
-          } 0.6s ease-out forwards;
-        }
-        .close {
-          animation: ${
-            isRTL ? "closeToLeft" : "closeToRight"
-          } 0.6s ease-in forwards;
-        }
+    /* ברירת מחדל - LTR (נכנס מימין) */
+    .menu-wrapper {
+      transform: translateX(100%);
+      opacity: 0;
+      visibility: hidden;
+      transition: transform 0.4s ease, opacity 0.3s ease, visibility 0s linear 0.4s;
+    }
 
-        @keyframes openFromRight {
-          0% { right: -20rem; opacity: 0; }
-          100% { right: 0; opacity: 1; }
-        }
+    .menu-wrapper.open {
+      transform: translateX(0);
+      opacity: 1;
+      visibility: visible;
+      transition: transform 0.4s ease, opacity 0.3s ease;
+    }
 
-        @keyframes closeToRight {
-          0% { right: 0; opacity: 1; }
-          100% { right: -20rem; opacity: 0; }
-        }
+    /* RTL - נכנס משמאל */
+    [dir="rtl"] .menu-wrapper {
+      transform: translateX(100%);
+    }
 
-        @keyframes openFromLeft {
-          0% { left: -20rem; opacity: 0; }
-          100% { left: 0; opacity: 1; }
-        }
-
-        @keyframes closeToLeft {
-          0% { left: 0; opacity: 1; }
-          100% { left: -20rem; opacity: 0; }
-        }
-        `}
+    [dir="rtl"] .menu-wrapper.open {
+      transform: translateX(0);
+    }
+  `}
       </style>
 
-      <div style={styles.container} ref={ref} dir={dir}>
+      <div
+        ref={ref}
+        dir={dir}
+        className={`menu-wrapper ${isOpen ? "open" : ""}`}
+        style={{
+          width: "15rem",
+          height: "100vh",
+          position: "fixed",
+          top: 0,
+          [isRTL ? "right" : "right"]: 0, // ← זה הצד הנכון לפי הכיוון
+          zIndex: 9,
+          backgroundColor: palette.surface,
+          boxShadow: palette.boxShadow,
+        }}
+      >
         <div style={styles.closeIcon} onClick={handleClose}>
           <CloseOutlinedIcon fontSize="large" />
         </div>
@@ -152,8 +166,8 @@ const Menu = ({ isOpen, handleClose }) => {
                     color: isSelected
                       ? palette.text
                       : palette.textSecondary || palette.text,
-                    gap: "8px", 
-                    paddingInline: "12px", 
+                    gap: "8px",
+                    paddingInline: "12px",
                   }}
                 >
                   {item.icon && (
