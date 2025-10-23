@@ -1,101 +1,119 @@
-// import { useState } from "react";
+import {
+  Box,
+  Typography,
+  Paper,
+  IconButton,
+  useMediaQuery,
+} from "@mui/material";
 import { useSettings } from "../Hooks/useSettings";
-import Card from "../Components/Card";
-import { useTheme } from "../Hooks/useTheme";
 import { useSelector } from "react-redux";
-import { Switch } from "@mui/material";
-import SettingsIcon from "@mui/icons-material/Settings";
+import SettingsUser from "../Pages/SettingsUser";
+import MenuIcon from "@mui/icons-material/Menu";
+import { useState } from "react";
+import Menu from "../Components/Menu";
 
 const Header = () => {
   const settings = useSettings();
-
-  const { theme, toggleDarkMode } = useTheme();
-
   const palette = useSelector((state) => state.appSettings.selectedPalette);
   const user = useSelector((state) => state.userAccount?.user);
+  const dir = settings?.direction || "ltr";
 
-  // detect direction from settings or fallback
-  const dir = settings?.direction || "ltr"; // "ltr" | "rtl"
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleMenu = () => setIsOpen(!isOpen);
+  const closeMenu = () => setIsOpen(false);
 
-  const styles = {
-    header: {
-      color: palette.text,
-      position: "sticky",
-      width: "calc(100vw - 85px)",
-      top: 0,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      height: "50px",
-      flexDirection: dir === "rtl" ? "row" : "row-reverse",
-      padding: "0 16px",
-    },
-    title: {
-      margin: 0,
-      fontSize: "1.8rem",
-      fontWeight: 500,
-      textAlign: "center",
-      flexGrow: 1,
-      fontfamily: "Assistant, sans-serif",
-    },
-    side: {
-      minWidth: "200px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: dir === "rtl" ? "flex-end" : "flex-start",
-      gap: "12px",
-    },
-  };
+  const isTablet = useMediaQuery("(max-width: 1024px)");
 
   return (
-    <Card>
-      <header style={styles.header} dir={dir}>
-        <div style={styles.side}>
-          <span>{user?.firstName || "Guest"}</span>
-        </div>
+    <Paper
+      elevation={0}
+      sx={{
+        position: "sticky",
+        top: 0,
+        zIndex: 20,
+        width: "100%",
+        height: 60,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        flexDirection: dir === "rtl" ? "row-reverse" : "row",
+        px: 2,
+        backgroundColor: palette.surface,
+        color: palette.text,
+        boxShadow: "none",
+      }}
+      dir={dir}
+    >
+        <SettingsUser />
 
-        <h1 style={styles.title}>{settings.texts.APP_TITLE}</h1>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          minWidth: 200,
+          justifyContent: "flex-start",
+          gap: 1.5,
+          fontWeight: 500,
+        }}
+      >
+        <Typography variant="body1">
+          {user.firstName || settings.texts.GUEST}
+        </Typography>
+      </Box>
+      <Typography
+        variant="h5"
+        sx={{
+          flexGrow: 1,
+          textAlign: "center",
+          fontWeight: 600,
+          fontFamily: "Assistant, sans-serif",
+          color: palette.text,
+        }}
+      >
+        {settings.texts.APP_TITLE}
+      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          minWidth: 200,
+          justifyContent: "flex-end",
+          gap: 1.5,
+        }}
+      >
 
-        <div style={styles.side}>
-          <Switch
-            checked={theme === "dark"}
-            onChange={toggleDarkMode}
-            color="default"
-          />
-          <SettingsIcon />
-        </div>
-      </header>
-    </Card>
+        {isTablet && (
+          <IconButton
+            onClick={toggleMenu}
+            sx={{
+              color: palette.text,
+              display: "flex",
+
+              backgroundColor: "transparent",
+              "&:hover": { backgroundColor: "rgba(0,0,0,0.05)" },
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
+      </Box>
+      {isTablet && <Menu isOpen={isOpen} handleClose={closeMenu} />}
+      {isTablet && isOpen && (
+        <div
+          onClick={closeMenu}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.3)",
+            zIndex: 8,
+          }}
+        />
+      )}
+    </Paper>
   );
 };
 
 export default Header;
-
-// import React from 'react';
-// import { useTheme } from '../Hooks/useTheme';
-// import { useSettings } from '../Hooks/useSettings';
-// import Card from '../Components/Card';
-
-// const Header = () => {
-//     const palette = useSelector(state => state.appSettings.selectedPalette);
-//     const settings = useSettings();
-
-//     return (
-//         <Card>
-//             <header style={{
-//                 color: palette.value.text,
-//                 position: 'sticky',
-//                 width: 'calc(100vw - 85px)',
-//                 top: 0,
-//                 display: 'flex',
-//                 alignItems: 'center',
-//                 justifyContent: 'center',
-//                 height: '60px'
-//             }}>
-//                 <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 500 }}>{settings.texts.APP_TITLE}</h1>
-//             </header>
-//         </Card>
-//     );
-// };
-
-// export default Header;

@@ -46,6 +46,7 @@ const TextEn = {
   ERR_REQUIRED_FIELDS: "Please fill in all required fields.",
   ERR_NO_TOKEN: "Login failed: no access token received.",
   LOADER_DATA : "Loading data...",
+   GUEST : "Guest",
 };
 
 export default TextEn;

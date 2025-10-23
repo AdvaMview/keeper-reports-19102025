@@ -8,7 +8,7 @@ export const THEMES = {
   export const DEFAULT_DATETIME_FORMAT_SERVER = 'YYYY-MM-DDTHH:mm:ss';  
   export const DEFAULT_DATE_FORMAT = 'DD/MM/YYYY';
   
-  export const DIRECTION = 'rtl'; // ltr or rtl
+  export const DIRECTION = "rtl"; // ltr or rtl
   
   export const APP_VERSION = '1.0.0.7';
   

@@ -1,23 +1,25 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    user: '',
-    accessToken: '',
-    // add more user fields as needed
+  user: {},
+  accessToken: "",
 };
 
 const userAccountSlice = createSlice({
-    name: 'userAccount',
-    initialState,
-    reducers: {
-        setUser(state, action) {
-            return { ...state, ...action.payload };
-        },
-        logout(state) {
-            return { ...initialState };
-        },
+  name: "userAccount",
+  initialState,
+  reducers: {
+    setUser(state, action) {
+      state.user = action.payload;
     },
+    setAccessToken(state, action) {
+      state.accessToken = action.payload;
+    },
+    logout() {
+      return initialState;
+    },
+  },
 });
 
-export const { setUser, logout } = userAccountSlice.actions;
+export const { setUser, setAccessToken, logout } = userAccountSlice.actions;
 export default userAccountSlice.reducer;

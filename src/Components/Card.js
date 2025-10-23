@@ -9,6 +9,7 @@ const Card = ({ title, subtitle, sx = {}, children }) => {
     <Paper
       elevation={0}
       sx={{
+        
         borderRadius: 2,
         padding: 2,
         margin: 0.5,
@@ -25,7 +26,7 @@ const Card = ({ title, subtitle, sx = {}, children }) => {
           sx={{
             color: palette.primary.main,
             fontWeight: "bold",
-            mb: 1,
+            mb: 1
           }}
         >
           {title}

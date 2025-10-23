@@ -46,6 +46,7 @@ const TextHe = {
   ERR_REQUIRED_FIELDS: "אנא מלא/י את כל השדות.",
   ERR_NO_TOKEN: "הכניסה נכשלה — לא התקבל אסימון גישה.",
   LOADER_DATA : "טוען נתונים...",
+  GUEST : "אורח",
 };
 
 export default TextHe;

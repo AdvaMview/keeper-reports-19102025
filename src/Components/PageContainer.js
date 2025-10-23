@@ -1,29 +1,35 @@
-// src/Components/PageContainer.jsx
-import { Container, Typography } from "@mui/material";
+import { Box, Typography, Paper } from "@mui/material";
 import { useSelector } from "react-redux";
-import Card from "../Components/Card";
 
 const PageContainer = ({ title, children }) => {
   const palette = useSelector((state) => state.appSettings.selectedPalette);
 
   return (
-    <Container
-      maxWidth={false}
-      disableGutters
+    <Box
       sx={{
-        flex: 1,
+        height: "100%", 
         display: "flex",
         flexDirection: "column",
-        padding: 0,
-        margin: 0,
       }}
     >
-      <Card>
+      <Paper
+        elevation={2}
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          p: 3,
+          borderRadius: 2,
+          backgroundColor: palette.surface,
+          color: palette.text,
+          boxShadow: "none",
+        }}
+      >
         {title && (
           <Typography
             variant="h5"
             sx={{
-              color: palette.text,
+              color: palette.primary.main,
               fontWeight: "bold",
               mb: 2,
             }}
@@ -32,9 +38,16 @@ const PageContainer = ({ title, children }) => {
           </Typography>
         )}
 
-        <div style={{ flex: 1 }}>{children}</div>
-      </Card>
-    </Container>
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+          }}
+        >
+          {children}
+        </Box>
+      </Paper>
+    </Box>
   );
 };
 

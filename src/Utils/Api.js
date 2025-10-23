@@ -1,74 +1,115 @@
+async function handleTokenRefresh(response) {
+  const newToken = response.headers.get("x-refresh-token");
+  if (newToken) {
+    const options = JSON.parse(localStorage.getItem("options")) || {};
+    const headers = options.headers || {};
+    headers["Authorization"] = `Bearer ${newToken}`;
+    options.headers = headers;
+    localStorage.setItem("options", JSON.stringify(options));
+    localStorage.setItem("token", newToken);
+  }
+}
+
 export async function login(post) {
-    //await sleep(2000);
-    if (!post) return null;
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}Auth/Login`, {
-        method: 'POST',
-        body: JSON.stringify(post),
-        headers: {
-            'Content-Type': 'application/json',
-        },
+  if (!post) return null;
+
+  const response = await fetch(
+    `${process.env.REACT_APP_API_BASE_URL}Auth/Login`,
+    {
+      method: "POST",
+      body: JSON.stringify(post),
+      headers: { "Content-Type": "application/json" },
     }
-    );
-    if (!response.ok) {
-        throw { message: 'Failed to Login.', status: 500 };
-    }
-    
-    return response.json();
+  );
+
+  if (!response.ok) {
+    const error = new Error("Failed to Login.");
+    error.status = response.status;
+    throw error;
+  }
+
+  const data = await response.json();
+
+  if (data.token) {
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${data.token}`,
+      },
+    };
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("options", JSON.stringify(options));
+  }
+
+  return data;
 }
 
 export async function verifyLogOn() {
-    //await sleep(2000);
-    const options = JSON.parse(localStorage.getItem('options'));
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}Auth/verifyLogOn`, options);
-    if (response.status === 401) {
-        return false
-    }
-    if (!response.ok) {
-        throw { message: 'Failed to verifyLogOn.', status: 500 };
-    }
+  const options = JSON.parse(localStorage.getItem("options"));
+  const response = await fetch(
+    `${process.env.REACT_APP_API_BASE_URL}Auth/verifyLogOn`,
+    options
+  );
 
-    return response.json();
+  await handleTokenRefresh(response);
+
+  if (response.status === 401) return false;
+  if (!response.ok) {
+    const error = new Error("Failed to verifyLogOn.");
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.json();
 }
 
 export async function GetBIReports() {
-    //await sleep(2000);
-    const options = JSON.parse(localStorage.getItem('options'));
-    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}TrafficReports/GetBIReports`, options);
-    if (response.status === 401) {
-        return false
-    }
-    if (!response.ok) {
-        throw { message: 'Failed to GetBIReports.', status: 500 };
-    }
+  const options = JSON.parse(localStorage.getItem("options"));
+  const response = await fetch(
+    `${process.env.REACT_APP_API_BASE_URL}TrafficReports/GetBIReports`,
+    options
+  );
 
-    return response.json();
+  await handleTokenRefresh(response);
+
+  if (response.status === 401) return false;
+  if (!response.ok) {
+    const error = new Error("Failed to GetBIReports.");
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.json();
 }
 
 export async function logout() {
-    //await sleep(2000);
-    const options = JSON.parse(localStorage.getItem('options'));
-    try {
-        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}Auth/Logout`, options);
+  const options = JSON.parse(localStorage.getItem("options"));
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}Auth/Logout`,
+      options
+    );
 
-        if (response.status === 401) {
-            localStorage.clear();
-            window.location.href = '/login';
-            return false;
-        }
-
-        if (!response.ok) {
-            throw { message: 'Failed to Logout.', status: 500 };
-        }
-        localStorage.clear();
-        window.location.href = '/login';
-        return response.json();
-
-    } catch (error) {
-        console.error('Logout error:', error);
-        localStorage.clear();
-        window.location.href = '/login';
-        throw error;
+    if (response.status === 401) {
+      localStorage.clear();
+      window.location.href = "/login";
+      return false;
     }
+
+    if (!response.ok) {
+      const error = new Error("Failed to Logout.");
+      error.status = response.status;
+      throw error;
+    }
+
+    localStorage.clear();
+    window.location.href = "/login";
+    return response.json();
+  } catch (error) {
+    console.error("Logout error:", error);
+    localStorage.clear();
+    window.location.href = "/login";
+    throw error;
+  }
 }
-
-

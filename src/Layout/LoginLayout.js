@@ -1,50 +1,54 @@
-import { Outlet } from "react-router-dom";
+import { Box, Container } from "@mui/material";
 import { useSelector } from "react-redux";
+import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import Logo from "../Components/Logo";
 
 const LoginLayout = () => {
   const palette = useSelector((state) => state.appSettings.selectedPalette);
 
-  const styles = {
-    container: {
-      height: "99vh", 
-      width: "100vw",  
-      display: "flex",
-      flexDirection: "column",
-      background: palette?.background,
-      overflow: "hidden",
-    },
-    inner: {
-      flex: 1, 
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      overflow: "hidden",
-    },
-    header: {
-      flexShrink: 0,
-    },
-    footer: {
-      flexShrink: 0,
-      marginBottom: "10px",
-      textAlign: "center",
-    },
-  };
-
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
+    <Box
+      sx={{
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: palette.background,
+        overflow: "hidden",
+      }}
+    >
+      <Box
+        sx={{
+          flexShrink: 0,
+          boxShadow: "none",
+        }}
+      >
         <Header />
-      </div>
-      <div style={styles.inner}>
+      </Box>
+      <Container
+        maxWidth="sm"
+        sx={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          py: 4,
+        }}
+      >
         <Outlet />
-      </div>
-      <div style={styles.footer}>
+      </Container>
+      <Box
+        sx={{
+          flexShrink: 0,
+          textAlign: "center",
+          py: 2,
+        }}
+      >
         <Logo type="full" />
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 
