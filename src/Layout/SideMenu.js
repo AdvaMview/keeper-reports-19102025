@@ -49,7 +49,7 @@ const SideMenu = () => {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      padding: "30rem 0 8px 0",
+      padding: "33rem 0 8px 0",
     },
   };
 

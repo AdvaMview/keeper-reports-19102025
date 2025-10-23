@@ -23,6 +23,7 @@ const Layout = () => {
           display: "flex",
           flex: 1,
           overflow: "hidden",
+           padding: 0.5,
         }}
       >
         {!isTablet && <SideMenu />}
