@@ -1,3 +1,5 @@
+import { clearAuthData  } from "./StorageUtils";
+
 async function handleTokenRefresh(response) {
   const newToken = response.headers.get("x-refresh-token");
   if (newToken) {
@@ -85,30 +87,26 @@ export async function GetBIReports() {
 
 export async function logout() {
   const options = JSON.parse(localStorage.getItem("options"));
+  
   try {
     const response = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}Auth/Logout`,
       options
     );
 
-    if (response.status === 401) {
-      localStorage.clear();
+    if (response.status === 401 || !response.ok) {
+      clearAuthData(); 
       window.location.href = "/login";
-      return false;
+      return;
     }
 
-    if (!response.ok) {
-      const error = new Error("Failed to Logout.");
-      error.status = response.status;
-      throw error;
-    }
-
-    localStorage.clear();
+    clearAuthData();
     window.location.href = "/login";
-    return response.json();
+
+    return await response.json();
   } catch (error) {
     console.error("Logout error:", error);
-    localStorage.clear();
+    clearAuthData();
     window.location.href = "/login";
     throw error;
   }

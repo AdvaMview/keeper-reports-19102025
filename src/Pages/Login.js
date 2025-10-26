@@ -7,13 +7,13 @@ import {
   CardHeader,
   TextField,
   Typography,
-  useTheme, 
+  useTheme,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../store/userAccountSlice";
 import { login } from "../Utils/Api";
-import { useSettings } from "../Hooks/useSettings"; 
+import { useSettings } from "../Hooks/useSettings";
 
 const Login = () => {
   const [userName, setUserName] = useState("");
@@ -23,8 +23,8 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const palette = useSelector((state) => state.appSettings.selectedPalette);
-  const { texts } = useSettings(); 
-  const theme = useTheme(); 
+  const { texts } = useSettings();
+  const theme = useTheme();
   const dir = theme.direction;
 
   const handleSubmit = (e) => {
@@ -69,8 +69,7 @@ const Login = () => {
   return (
     <Box
       sx={{
-        minWidth: "100vw",
-        minHeight: "100vh",
+        minWidth: "100vW",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

@@ -6,10 +6,10 @@ const initialState = {
   selectedPalette:
     palettes.find((p) => p.name === localStorage.getItem("selectedPalette")) ||
     palettes[0],
-  direction: "rtl",
-  language: "he",
-  // add more settings as needed
+  direction: localStorage.getItem("direction") || "rtl",
+  language: localStorage.getItem("language") || "he",
 };
+
 
 const appSettingsSlice = createSlice({
   name: "appSettings",

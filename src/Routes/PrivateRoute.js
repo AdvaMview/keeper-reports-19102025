@@ -5,11 +5,12 @@ import { Box, Typography, CircularProgress } from "@mui/material";
 import { useSettings } from "../Hooks/useSettings";
 import { useDispatch } from "react-redux";
 import { setUser } from "../store/userAccountSlice";
+import { clearAuthData } from "../Utils/StorageUtils";
 
 const PrivateRoute = ({ children }) => {
   const [isValid, setIsValid] = useState(null);
   const settings = useSettings();
-  const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -17,8 +18,8 @@ const PrivateRoute = ({ children }) => {
         const result = await verifyLogOn();
         console.log("✅ verifyLogOn result:", result);
         if (result && result.user) {
-          // dispatch(setUser(result.user)); 
-          dispatch(setUser({ ...result.user, role: 1 })); 
+          // dispatch(setUser(result.user));
+          dispatch(setUser({ ...result.user, role: 1 }));
 
           setIsValid(true);
         } else {
@@ -52,7 +53,7 @@ const PrivateRoute = ({ children }) => {
     );
 
   if (!isValid) {
-    localStorage.clear();
+    clearAuthData();
     return <Navigate to="/login" replace />;
   }
 

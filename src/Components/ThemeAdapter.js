@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { ThemeProvider, CssBaseline, createTheme } from "@mui/material";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
@@ -16,11 +16,21 @@ export const LanguageContext = React.createContext({
 });
 
 const ThemeAdapter = ({ children }) => {
-  const [language, setLanguage] = useState("he");
+  const [language, setLanguage] = useState(() => localStorage.getItem("language") || "he");
+  const [direction, setDirection] = useState(() => localStorage.getItem("direction") || (language === "he" ? "rtl" : "ltr"));
+
   const { palette, theme } = useAppTheme();
 
-  const direction = language === "he" ? "rtl" : "ltr";
   const texts = language === "he" ? TextHe : TextEn;
+
+  useEffect(() => {
+    const newDir = language === "he" ? "rtl" : "ltr";
+    setDirection(newDir);
+    localStorage.setItem("language", language);
+    localStorage.setItem("direction", newDir);
+    document.documentElement.dir = newDir;
+    document.body.dir = newDir;
+  }, [language]);
 
   const cache = useMemo(
     () =>
@@ -59,15 +69,11 @@ const ThemeAdapter = ({ children }) => {
     [palette, theme, direction, baseTheme]
   );
 
-  document.body.dir = direction;
-
   return (
     <CacheProvider value={cache}>
       <ThemeProvider theme={dynamicTheme}>
         <CssBaseline />
-        <LanguageContext.Provider
-          value={{ language, texts, direction, setLanguage }}
-        >
+        <LanguageContext.Provider value={{ language, texts, direction, setLanguage }}>
           {children}
         </LanguageContext.Provider>
       </ThemeProvider>

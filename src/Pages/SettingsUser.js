@@ -45,9 +45,13 @@ const SettingsUser = () => {
     handleClose();
   };
 
-  const toggleLanguage = () => {
-    setLanguage(language === "he" ? "en" : "he");
-  };
+ const toggleLanguage = () => {
+  const newLang = language === "he" ? "en" : "he";
+  setLanguage(newLang);
+  localStorage.setItem("language", newLang); 
+  localStorage.setItem("direction", newLang === "he" ? "rtl" : "ltr"); 
+};
+
 
   return (
     <Box>
