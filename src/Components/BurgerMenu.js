@@ -23,7 +23,7 @@ const BurgerMenu = () => {
   const palette = useSelector((state) => state.appSettings.selectedPalette);
   const settings = useSettings();
   const theme = useTheme();
-  const dir = theme.direction; // RTL / LTR
+  const dir = theme.direction; 
   const user = useSelector((state) => state.userAccount.user);
   const userRole = user?.role;
 
@@ -50,7 +50,8 @@ const BurgerMenu = () => {
         sx={{
           color: palette.text,
           backgroundColor: "transparent",
-          "&:hover": { backgroundColor: "rgba(0,0,0,0.05)" },
+        "&:hover": { backgroundColor: palette.surface },
+
         }}
       >
         <MenuIcon fontSize="large" />

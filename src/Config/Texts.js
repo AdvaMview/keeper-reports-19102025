@@ -45,10 +45,12 @@ const TextHe = {
   ERR_INVALID_LOGIN: "שם משתמש או סיסמה שגויים.",
   ERR_REQUIRED_FIELDS: "אנא מלא/י את כל השדות.",
   ERR_NO_TOKEN: "הכניסה נכשלה — לא התקבל אסימון גישה.",
-  LOADER_DATA : "טוען נתונים...",
-  GUEST : "אורח",
-  LIGHT_MODE : "מצב בהיר",
-  DARK_MODE : "מצב כהה",
+  LOADER_DATA: "טוען נתונים...",
+  GUEST: "אורח",
+  LIGHT_MODE: "מצב בהיר",
+  DARK_MODE: "מצב כהה",
+  SWITCH_TO_ENGLISH: "עבור לאנגלית",
+  SWITCH_TO_HEBREW: "עבור לעברית",
 };
 
 export default TextHe;

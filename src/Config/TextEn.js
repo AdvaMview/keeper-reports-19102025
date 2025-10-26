@@ -49,6 +49,8 @@ const TextEn = {
   GUEST: "Guest",
   LIGHT_MODE: "Light Mode",
   DARK_MODE: "Dark Mode",
+  SWITCH_TO_ENGLISH: "Switch to English",
+  SWITCH_TO_HEBREW: "Switch to Hebrew",
 };
 
 export default TextEn;

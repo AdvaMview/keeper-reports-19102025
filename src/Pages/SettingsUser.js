@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   Box,
   IconButton,
@@ -8,22 +8,23 @@ import {
   ListItemText,
   Switch,
   Divider,
-  useTheme as useMuiTheme, 
+  useTheme as useMuiTheme,
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
+import GTranslateIcon from "@mui/icons-material/GTranslate";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useTheme } from "../Hooks/useTheme";
 import { useSelector } from "react-redux";
 import { useLogout } from "../Pages/Logout";
 import { useSettings } from "../Hooks/useSettings";
 import { useLocation } from "react-router-dom";
+import { LanguageContext } from "../Components/ThemeAdapter";
 
 const SettingsUser = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-
-  const settings = useSettings(); 
+  const settings = useSettings();
   const { theme, toggleDarkMode } = useTheme();
   const handleLogout = useLogout();
   const palette = useSelector((state) => state.appSettings.selectedPalette);
@@ -34,12 +35,18 @@ const SettingsUser = () => {
   const dir = muiTheme.direction;
   const isRTL = dir === "rtl";
 
+  const { language, setLanguage } = useContext(LanguageContext);
+
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
   const onLogout = async () => {
     await handleLogout();
     handleClose();
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === "he" ? "en" : "he");
   };
 
   return (
@@ -76,15 +83,30 @@ const SettingsUser = () => {
           <ListItemIcon>
             <Brightness4Icon sx={{ color: palette.text }} />
           </ListItemIcon>
-          <ListItemText>
-            {theme === "dark"
-              ? settings.texts.LIGHT_MODE
-              : settings.texts.DARK_MODE}
-          </ListItemText>
+          <ListItemText
+            primary={
+              theme === "dark"
+                ? settings.texts.LIGHT_MODE || "Light Mode"
+                : settings.texts.DARK_MODE || "Dark Mode"
+            }
+          />
           <Switch
             checked={theme === "dark"}
             onChange={toggleDarkMode}
             color="default"
+          />
+        </MenuItem>
+
+        <MenuItem onClick={toggleLanguage}>
+          <ListItemIcon>
+            <GTranslateIcon sx={{ color: palette.text }} />
+          </ListItemIcon>
+          <ListItemText
+            primary={
+              language === "he"
+                ? settings.texts.SWITCH_TO_ENGLISH
+                : settings.texts.SWITCH_TO_HEBREW
+            }
           />
         </MenuItem>
 
