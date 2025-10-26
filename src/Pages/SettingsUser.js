@@ -8,6 +8,7 @@ import {
   ListItemText,
   Switch,
   Divider,
+  useTheme as useMuiTheme, 
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
@@ -22,14 +23,16 @@ const SettingsUser = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
-  const settings = useSettings();
+  const settings = useSettings(); 
   const { theme, toggleDarkMode } = useTheme();
   const handleLogout = useLogout();
   const palette = useSelector((state) => state.appSettings.selectedPalette);
-  const dir = settings?.direction || "ltr";
   const location = useLocation();
-
   const isLoginPage = location.pathname.toLowerCase().includes("/login");
+
+  const muiTheme = useMuiTheme();
+  const dir = muiTheme.direction;
+  const isRTL = dir === "rtl";
 
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -59,6 +62,14 @@ const SettingsUser = () => {
             color: palette.text,
             boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
           },
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: isRTL ? "right" : "left",
+        }}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: isRTL ? "right" : "left",
         }}
       >
         <MenuItem>

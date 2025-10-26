@@ -9,7 +9,7 @@ import "@fontsource/roboto/700.css";
 export const muiThemes = palettes.reduce((acc, p) => {
   const theme = createTheme(
     {
-      direction: "rtl",
+      // direction: "rtl",
       palette: {
         mode: p.name === "dark" ? "dark" : "light",
         primary: p.primary,

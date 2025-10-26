@@ -1,19 +1,11 @@
-import config from '../Config';
-import TextEn from '../Config/TextEn';
-import Texts from '../Config/Texts';
+import { useContext } from "react";
+import { LanguageContext } from "../Components/ThemeAdapter";
 
 export function useSettings() {
-    const direction = config.DIRECTION;
-    
-    // Returns text based on direction
-    const getText = () => {
-        return direction === 'rtl' ? Texts : TextEn;
-    };
+  const { language, texts } = useContext(LanguageContext);
 
-    const texts = getText();
-
-    return {
-        ...config,
-        texts,
-    };
+  return {
+    language,
+    texts,
+  };
 }

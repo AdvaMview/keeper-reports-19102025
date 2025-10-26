@@ -1,12 +1,12 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   IconButton,
   Drawer,
   List,
   ListItemButton,
-  ListItemIcon,
   ListItemText,
+  useTheme,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
@@ -22,10 +22,10 @@ const BurgerMenu = () => {
   const location = useLocation();
   const palette = useSelector((state) => state.appSettings.selectedPalette);
   const settings = useSettings();
-    const dir = settings?.direction || "rtl";
+  const theme = useTheme();
+  const dir = theme.direction;
   const user = useSelector((state) => state.userAccount.user);
   const userRole = user?.role;
-//   const dir = "rtl";
 
   const filteredMenuItems = menuItems.filter(
     (item) => !item.PermissionRoles || item.PermissionRoles.includes(userRole)
@@ -58,13 +58,10 @@ const BurgerMenu = () => {
       </IconButton>
 
       <Drawer
-        anchor={isRTL ? "right" : "left"} // צד שבו הוא נצמד כשהוא פתוח
+        anchor={isRTL ? "right" : "left"}
         open={open}
         onClose={toggleDrawer(false)}
-        transitionDuration={400} // החלקה רכה
-        SlideProps={{
-          direction: isRTL ? "left" : "right", // הכיוון שממנו הוא נכנס
-        }}
+        transitionDuration={400} 
         PaperProps={{
           sx: {
             width: 250,
