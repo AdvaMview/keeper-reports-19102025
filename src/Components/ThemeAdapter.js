@@ -6,16 +6,16 @@ import stylisRTLPlugin from "stylis-plugin-rtl";
 import { muiThemes } from "../Style/themeAdapter";
 import TextEn from "../Config/TextEn";
 import TextHe from "../Config/Texts";
-import { useSettings } from "../Hooks/useSettings";
-import { useTheme } from "../Hooks/useTheme";
+import { useTheme as useAppTheme } from "../Hooks/useTheme"; 
 
 const ThemeAdapter = ({ children }) => {
   const [language, setLanguage] = useState("he");
-  const { palette, theme } = useTheme();
+  const { palette, theme } = useAppTheme(); // מגיע מהמערכת שלך (dark/light)
+
   const direction = language === "he" ? "rtl" : "ltr";
   const texts = language === "he" ? TextHe : TextEn;
-  // const settings = useSettings();
 
+  // Cache לפי כיוון
   const cache = useMemo(
     () =>
       createCache({
@@ -25,11 +25,13 @@ const ThemeAdapter = ({ children }) => {
     [direction]
   );
 
+  // בסיס ה־Theme
   const baseTheme =
     muiThemes[theme] ||
     muiThemes[palette?.name?.toLowerCase()] ||
     muiThemes.light;
 
+  // ✅ זה ה־Theme הדינמי שמועבר ל־MUI
   const dynamicTheme = useMemo(
     () =>
       createTheme({
@@ -37,7 +39,7 @@ const ThemeAdapter = ({ children }) => {
         direction,
         palette: {
           ...baseTheme.palette,
-          mode: theme, // light / dark
+          mode: theme, // מאפשר ל־useTheme() לזהות מצב כהה/בהיר
           primary: palette.primary,
           secondary: palette.secondary,
           background: {
@@ -60,6 +62,7 @@ const ThemeAdapter = ({ children }) => {
       <ThemeProvider theme={dynamicTheme}>
         <CssBaseline />
 
+        {/* כפתור החלפת שפה */}
         <div
           style={{
             position: "fixed",
@@ -87,7 +90,7 @@ const ThemeAdapter = ({ children }) => {
           </button>
         </div>
 
-        {/* נשתף את הטקסטים כ־context אם נרצה להשתמש בהם בכל האפליקציה */}
+        {/* משתף את השפה והטקסטים */}
         <LanguageContext.Provider value={{ language, texts }}>
           {children}
         </LanguageContext.Provider>
@@ -100,4 +103,5 @@ export const LanguageContext = React.createContext({
   language: "he",
   texts: {},
 });
+
 export default ThemeAdapter;

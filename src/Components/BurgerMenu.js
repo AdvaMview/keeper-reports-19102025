@@ -23,7 +23,7 @@ const BurgerMenu = () => {
   const palette = useSelector((state) => state.appSettings.selectedPalette);
   const settings = useSettings();
   const theme = useTheme();
-  const dir = theme.direction;
+  const dir = theme.direction; // RTL / LTR
   const user = useSelector((state) => state.userAccount.user);
   const userRole = user?.role;
 
@@ -31,19 +31,18 @@ const BurgerMenu = () => {
     (item) => !item.PermissionRoles || item.PermissionRoles.includes(userRole)
   );
 
-  const toggleDrawer = (state) => () => {
-    setOpen(state);
-  };
-
+  const toggleDrawer = (state) => () => setOpen(state);
   const handleNavigate = (route) => {
     navigate(route);
     setOpen(false);
   };
 
-  const isRTL = dir === "rtl";
+  const isRTL = dir === "ltr";
+
   useEffect(() => {
     console.log("Direction changed to:", dir);
-  });
+  }, [dir]);
+
   return (
     <>
       <IconButton
@@ -58,10 +57,11 @@ const BurgerMenu = () => {
       </IconButton>
 
       <Drawer
-        anchor={isRTL ? "right" : "left"}
+        key={dir}
+        anchor={isRTL ? "left" : "left"}
         open={open}
         onClose={toggleDrawer(false)}
-        transitionDuration={400} 
+        transitionDuration={400}
         PaperProps={{
           sx: {
             width: 250,
@@ -78,18 +78,16 @@ const BurgerMenu = () => {
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: isRTL ? "flex-end" : "flex-start",
             px: 2,
             py: 1.5,
           }}
         >
-          <IconButton
-            onClick={toggleDrawer(false)}
-            sx={{ color: palette.text }}
-          >
+          <IconButton onClick={toggleDrawer(false)} sx={{ color: palette.text }}>
             <CloseOutlinedIcon />
           </IconButton>
         </Box>
+
         <List sx={{ flexGrow: 1, px: 1 }}>
           {filteredMenuItems.map((item) => {
             const isSelected = location.pathname === item.route;
@@ -101,8 +99,8 @@ const BurgerMenu = () => {
                   display: "flex",
                   flexDirection: isRTL ? "row-reverse" : "row",
                   alignItems: "center",
-                  justifyContent: "flex-start",
-                  textAlign: isRTL ? "right" : "left",
+                  justifyContent: isRTL ? "flex-end" : "flex-start",
+                  textAlign: isRTL ? "left" : "left",
                   backgroundColor: isSelected
                     ? palette.primary.light
                     : "transparent",
@@ -115,18 +113,16 @@ const BurgerMenu = () => {
                       : "rgba(0,0,0,0.05)",
                     color: palette.text,
                   },
-                  transition: "background-color 0.3s ease, color 0.3s ease",
                   borderRadius: "8px",
                   py: 1.2,
                   px: 1.5,
                   gap: 1,
+                  transition: "background-color 0.3s ease, color 0.3s ease",
                 }}
               >
                 <ListItemText
                   primary={settings.texts[item.name]}
                   sx={{
-                    textAlign: isRTL ? "right" : "left",
-                    direction: isRTL ? "rtl" : "ltr",
                     "& .MuiListItemText-primary": {
                       fontSize: "1.2rem",
                       color: palette.text,
@@ -138,12 +134,8 @@ const BurgerMenu = () => {
           })}
         </List>
 
-        <Box
-          sx={{
-            textAlign: "center",
-            py: 2,
-          }}
-        >
+        {/* לוגו בתחתית */}
+        <Box sx={{ textAlign: "center", py: 2 }}>
           <Logo type="full" />
         </Box>
       </Drawer>

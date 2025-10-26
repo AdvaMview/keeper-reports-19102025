@@ -1,31 +1,30 @@
-import { useSettings } from "../Hooks/useSettings";
-// import { useTheme } from '../Hooks/useTheme';
-// import { useSelector } from "react-redux";
+import { useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
+import { useSettings } from "../Hooks/useSettings";
 
-function Logo({ type, ...props }) {
+function Logo({ type = "full", ...props }) {
   const { LOGOS } = useSettings();
-  // const palette = useSelector(state => state.appSettings.selectedPalette);
-  // const color = THEMES.DARK === palette?.name ||'dark';
-  // const color = palette.name;
-  const theme = useTheme();
-  const mode = theme?.palette?.mode || "light";
-  const logoSet = LOGOS?.[mode] || LOGOS?.light || {};
-  const logoSrc = logoSet?.[type] || logoSet?.full || "MVIEW_BLACK.png";
+  const theme = useTheme(); 
+  const mode = theme.palette.mode || "light";
+
+
+  const logoSrc = useMemo(() => {
+    const logoSet = LOGOS?.[mode] || LOGOS.light;
+    return logoSet?.[type] || logoSet?.full;
+  }, [LOGOS, mode, type]);
+
   return (
-    <>
-      {/* <img style={{ height: '10rem' }}
-        alt="Logo"
-        src={`/static/${LOGOS[color][type]}`}
-        {...props}
-      /> */}
-      <img
-        style={{ height: "10rem", objectFit: "contain" }}
-        alt="Logo"
-        src={`/static/${logoSrc}`}
-        {...props}
-      />
-    </>
+    <img
+      key={mode} 
+      src={`/static/${logoSrc}`}
+      alt="Logo"
+      style={{
+        height: "10rem",
+        objectFit: "contain",
+        transition: "opacity 0.4s ease-in-out",
+      }}
+      {...props}
+    />
   );
 }
 
