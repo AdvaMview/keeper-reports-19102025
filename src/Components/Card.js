@@ -1,4 +1,3 @@
-// src/Components/Card.jsx
 import { Paper, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 

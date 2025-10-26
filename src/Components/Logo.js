@@ -19,7 +19,7 @@ function Logo({ type = "full", ...props }) {
       src={`/static/${logoSrc}`}
       alt="Logo"
       style={{
-        height: "10rem",
+        height: "8rem",
         objectFit: "contain",
         transition: "opacity 0.4s ease-in-out",
       }}

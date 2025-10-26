@@ -12,84 +12,80 @@ const SideMenu = () => {
   const location = useLocation();
   const { texts, MENU_WIDTH, direction } = useSettings();
   const palette = useSelector((state) => state.appSettings.selectedPalette);
-
-   const user = useSelector((state) => state.userAccount.user);
+  const user = useSelector((state) => state.userAccount.user);
   const userRole = user?.role;
 
   const filteredMenuItems = menuItems.filter(
     (item) => !item.PermissionRoles || item.PermissionRoles.includes(userRole)
   );
-  
-  const styles = {
-    card: {
-      width: MENU_WIDTH,
-      height: "88vh",
-      display: "flex",
-      flexDirection: "column",
-      padding: "8px",
-      boxSizing: "border-box",
-      background: palette.surface,
-    },
-    menuContainer: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "8px",
-      flexGrow: 1,
-      padding: "0 8px",
-      overflowY: "auto",
-    },
-    button: {
-      width: "100%",
-      height: "48px",
-      justifyContent: "flex-start",
-      fontSize: "1.1rem",
-    },
-    logoContainer: {
-      marginTop: "auto",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: "33rem 0 8px 0",
-    },
-  };
 
   return (
-    <Card dir={direction} style={styles.card}>
-      <Box style={styles.menuContainer}>
+    <Card
+      dir={direction}
+      sx={{
+        width: MENU_WIDTH,
+        height: "calc(100vh - 80px)",
+        display: "flex",
+        flexDirection: "column",
+        background: palette.surface,
+        boxSizing: "border-box",
+        p: 1,
+      }}
+    >
+      <Box
+        sx={{
+          flex: 1,
+          overflowY: "auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: 1,
+          pb: 10,
+        }}
+      >
         {filteredMenuItems.map((item) => {
           const isSelected = location.pathname === item.route;
           return (
             <Button
               key={item.route}
               onClick={() => navigate(item.route)}
-              style={{
-                ...styles.button,
-                ...(isSelected
-                  ? {
-                      background: palette.primary.light,
-                      color: palette.text,
-                    }
-                  : {}),
+              sx={{
+                justifyContent: "flex-start",
+                textAlign: "left",
+                color: isSelected ? palette.text : palette.textSecondary,
+                backgroundColor: isSelected
+                  ? palette.primary.light
+                  : "transparent",
+                fontSize: "1.1rem",
+                height: 48,
+                borderRadius: 1,
+                "&:hover": {
+                  backgroundColor: isSelected
+                    ? palette.primary.main
+                    : palette.primary.background,
+                  color: palette.text,
+                },
               }}
             >
               {item.icon && (
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginInlineEnd: 8,
-                  }}
+                <Box
+                  component="span"
+                  sx={{ display: "flex", alignItems: "center", mr: 1 }}
                 >
                   {item.icon}
-                </span>
+                </Box>
               )}
-              <span>{texts[item.name]}</span>
+              {texts[item.name]}
             </Button>
           );
         })}
       </Box>
-
-      <Box style={styles.logoContainer}>
+      <Box
+        sx={{
+          flexShrink: 0,
+          textAlign: "center",
+          py: 2,
+        }}
+      >
         <Logo type="full" direction={direction} />
       </Box>
     </Card>

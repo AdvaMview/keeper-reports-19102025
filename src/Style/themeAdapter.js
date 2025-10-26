@@ -9,7 +9,6 @@ import "@fontsource/roboto/700.css";
 export const muiThemes = palettes.reduce((acc, p) => {
   const theme = createTheme(
     {
-      // direction: "rtl",
       palette: {
         mode: p.name === "dark" ? "dark" : "light",
         primary: p.primary,
@@ -25,17 +24,17 @@ export const muiThemes = palettes.reduce((acc, p) => {
         },
         divider: p.border,
       },
+      custom: {
+        surface: p.surface,
+        border: p.border,
+        borderRadius: p.borderRadius,
+        boxShadow: p.boxShadow,
+      },
       shape: {
         borderRadius: parseInt(p.borderRadius, 10) || 8,
       },
       typography: {
-        fontFamily: [
-          "Rubik",
-          "Assistant",
-          "Heebo",
-          "Arial",
-          "sans-serif",
-        ].join(","),
+        fontFamily: ["Rubik", "Assistant", "Heebo", "Arial", "sans-serif"].join(","),
         h1: { fontSize: "2rem", fontWeight: 600 },
         h2: { fontSize: "1.5rem", fontWeight: 500 },
         body1: { fontSize: "1rem" },
@@ -46,7 +45,7 @@ export const muiThemes = palettes.reduce((acc, p) => {
           styleOverrides: {
             root: {
               backgroundColor: p.surface,
-              border: p.border,
+              borderColor: p.border,
               boxShadow: p.boxShadow,
             },
           },

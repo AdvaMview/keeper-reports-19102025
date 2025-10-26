@@ -31,7 +31,6 @@ const Layout = () => {
           sx={{
             flex: 1,
             overflowY: "auto",
-            height: "calc(100vh - 80px)",
             padding: 0.5,
             boxSizing: "border-box",
           }}

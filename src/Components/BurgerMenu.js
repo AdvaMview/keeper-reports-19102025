@@ -135,7 +135,6 @@ const BurgerMenu = () => {
           })}
         </List>
 
-        {/* לוגו בתחתית */}
         <Box sx={{ textAlign: "center", py: 2 }}>
           <Logo type="full" />
         </Box>

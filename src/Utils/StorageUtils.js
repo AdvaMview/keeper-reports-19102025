@@ -3,5 +3,3 @@ export const clearAuthData = (extraKeys = []) => {
   authKeys.forEach((key) => localStorage.removeItem(key));
 };
 
-clearAuthData(); 
-clearAuthData(["sessionId", "refreshToken"]); 

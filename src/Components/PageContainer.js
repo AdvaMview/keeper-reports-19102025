@@ -7,7 +7,8 @@ const PageContainer = ({ title, children }) => {
   return (
     <Box
       sx={{
-        height: "100%", 
+        // height: "calc(100vh - 80px)",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
       }}
