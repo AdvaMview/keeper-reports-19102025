@@ -1,53 +1,59 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PaginationTableContainer from './PaginationTableContainer';
 
-/**
- * Wrapper גנרי לטבלת פאגינציה
- * אחראי על ניהול localStorage והעברת פרופסים לקונטיינר
- */
-const PaginationTableWrapper = ({
-  tableId,            // מזהה ייחודי לטבלה (לשמירת מצב)
-  fetchData,          // פונקציה שמביאה נתונים מהשרת
-  columns,            // עמודות
-  onRowClick,         // פעולה בלחיצה
-  exportFileName,     // שם לקובץ ייצוא
-  selectableRows,     // מאפשר בחירת שורות
-  bulkActions,        // פעולות קבוצתיות
-  height = 600,       // גובה ברירת מחדל
-  refreshKey          // טריגר לרענון
-}) => {
+const PaginationTableWrapper = (props) => {
+    const {
+        maxHeight,
+        dataFunctionName,
+        onRowDoubleClick,
+        exceptionId,
+        excelFileName,
+        url,
+        unHiddenColumns,
+        anableSelectRows,
+        bulkOperation,
+        tableHeight,
+        refresh
+    } = props
 
-  useEffect(() => {
-    // בדיקה אם יש הגדרות שמורות לטבלה
-    const storedSettings = JSON.parse(localStorage.getItem('tableSettings')) || {};
-    if (!storedSettings[tableId]) {
-      storedSettings[tableId] = {
-        page: 0,
-        limit: 25,
-        totalRows: 0,
-        sort: [],
-        filters: [],
-        hiddenColumns: [],
-        hideFilters: false,
-        exportFileName: exportFileName || `${tableId}_data`,
-      };
-      localStorage.setItem('tableSettings', JSON.stringify(storedSettings));
+    //init data source 
+    const storedTableSettings = JSON.parse(localStorage.getItem('tableSettings'));
+    if (!storedTableSettings) {
+        const initObj = {
+            page: 0,
+            limit: 100,
+            totalRows: 0,
+            sort: [],
+            filter: [],
+            hideFilters: true,
+            tableColumns: [],
+            excelFileName: '',
+            prevExId: null
+        }
+
+        const initDataSourceSlice = {
+            'GetExceptionDetails': initObj,
+            'GetExceptionResultEl': initObj,
+            'GetExceptionResultEu': initObj,
+            'ExceptionData': initObj,
+        };
+        localStorage.setItem('tableSettings', JSON.stringify(initDataSourceSlice));
     }
-  }, [tableId, exportFileName]);
+    
+    return (
+        <PaginationTableContainer
+            dataFunctionName={dataFunctionName}
+            url={url}
+            onRowDoubleClick={onRowDoubleClick}
+            exceptionId={exceptionId}
+            excelFileName={excelFileName}
+            unHiddenColumns={unHiddenColumns}
+            anableSelectRows={anableSelectRows}
+            bulkOperation={bulkOperation}
+            tableHeight={tableHeight}
+            refresh={refresh}
+        />
+    )
+}
 
-  return (
-    <PaginationTableContainer
-      tableId={tableId}
-      fetchData={fetchData}
-      columns={columns}
-      onRowClick={onRowClick}
-      exportFileName={exportFileName}
-      selectableRows={selectableRows}
-      bulkActions={bulkActions}
-      height={height}
-      refreshKey={refreshKey}
-    />
-  );
-};
-
-export default PaginationTableWrapper;
+export default PaginationTableWrapper

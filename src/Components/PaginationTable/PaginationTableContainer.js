@@ -384,41 +384,39 @@ const PaginationTableContainer = (props) => {
   //     }))
   // }
 
- const DataHandler = async () => {
-  if (isFetching.current) return; // אם כבר יש בקשה רצה — לצאת
-  isFetching.current = true;
+  const DataHandler = async () => {
+    if (!props.fetchData) return;
 
-  try {
-    setLoading(true);
-    const data = await props.fetchData(getDataSource());
+    try {
+      setLoading(true);
+      const data = await props.fetchData(getDataSource());
 
-    const {
-      rows = [],
-      columns = {},
-      totalRowsCount = 0,
-      filterOptions = null,
-    } = data;
+      // מצופה להחזיר: { rows, columns, totalRows, filterOptions? }
+      const {
+        rows = [],
+        columns = {},
+        totalRowsCount = 0,
+        filterOptions = null,
+      } = data;
 
-    setInnerRows(rows);
-    setColumns(columns);
-    setTotalRowsCount(totalRowsCount);
-    setFilterOptions(filterOptions);
+      setInnerRows(rows);
+      setColumns(columns);
+      setTotalRowsCount(totalRowsCount);
+      setFilterOptions(filterOptions);
 
-    dispatch(
-      dataSourceActions.updateSliceValue({
-        tableName: dataFunctionName,
-        key: "totalRows",
-        value: totalRowsCount,
-      })
-    );
-  } catch (err) {
-    console.error("❌ DataHandler fetchData failed:", err);
-  } finally {
-    setLoading(false);
-    isFetching.current = false;
-  }
-};
-
+      dispatch(
+        dataSourceActions.updateSliceValue({
+          tableName: dataFunctionName,
+          key: "totalRows",
+          value: totalRowsCount,
+        })
+      );
+    } catch (err) {
+      console.error("❌ DataHandler fetchData failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   //   const exportToExcelHandler = () => {
   //     const HandelResponse = (response) => {
