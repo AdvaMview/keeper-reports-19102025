@@ -49,6 +49,8 @@ export async function login(post) {
 
 export async function verifyLogOn() {
   const options = JSON.parse(localStorage.getItem("options"));
+  const token = localStorage.getItem("token");
+
   const response = await fetch(
     `${process.env.REACT_APP_API_BASE_URL}Auth/verifyLogOn`,
     options
@@ -63,8 +65,42 @@ export async function verifyLogOn() {
     throw error;
   }
 
-  return response.json();
+  const data = await response.json();
+
+  // ✳️ פענוח ה־JWT אם קיים
+  if (token) {
+    const decoded = decodeJwt(token);
+    if (decoded) {
+      data.user = {
+        ...data.user,
+        role: decoded.Role,
+        userId: decoded.id,
+        customerId: decoded.CustomerId,
+      };
+    }
+  }
+
+  return data;
 }
+
+
+function decodeJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error("❌ Failed to decode JWT:", e);
+    return null;
+  }
+}
+
 
 export async function GetBIReports() {
   const options = JSON.parse(localStorage.getItem("options"));

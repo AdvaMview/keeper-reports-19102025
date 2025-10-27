@@ -20,7 +20,6 @@ const PrivateRoute = ({ children }) => {
         if (result && result.user) {
           // dispatch(setUser(result.user));
           dispatch(setUser({ ...result.user, role: 1 }));
-
           setIsValid(true);
         } else {
           setIsValid(false);

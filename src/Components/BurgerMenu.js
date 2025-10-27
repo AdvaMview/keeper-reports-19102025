@@ -23,7 +23,7 @@ const BurgerMenu = () => {
   const palette = useSelector((state) => state.appSettings.selectedPalette);
   const settings = useSettings();
   const theme = useTheme();
-  const dir = theme.direction; 
+  const dir = theme.direction;
   const user = useSelector((state) => state.userAccount.user);
   const userRole = user?.role;
 
@@ -42,6 +42,10 @@ const BurgerMenu = () => {
   useEffect(() => {
     console.log("Direction changed to:", dir);
   }, [dir]);
+  useEffect(() => {
+    console.log("👤 userRole:", userRole);
+    console.log("📜 menuItems:", menuItems);
+  }, [userRole]);
 
   return (
     <>
@@ -50,8 +54,7 @@ const BurgerMenu = () => {
         sx={{
           color: palette.text,
           backgroundColor: "transparent",
-        "&:hover": { backgroundColor: palette.surface },
-
+          "&:hover": { backgroundColor: palette.surface },
         }}
       >
         <MenuIcon fontSize="large" />
@@ -84,7 +87,10 @@ const BurgerMenu = () => {
             py: 1.5,
           }}
         >
-          <IconButton onClick={toggleDrawer(false)} sx={{ color: palette.text }}>
+          <IconButton
+            onClick={toggleDrawer(false)}
+            sx={{ color: palette.text }}
+          >
             <CloseOutlinedIcon />
           </IconButton>
         </Box>

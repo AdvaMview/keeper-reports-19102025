@@ -1,14 +1,15 @@
-import PageContainer from '../Components/PageContainer';
-import { useSettings } from '../Hooks/useSettings';
-
+import PageContainer from "../Components/PageContainer";
+import { useSettings } from "../Hooks/useSettings";
+import PaginationTableParent from "../Components/PaginationTable/PaginationTableParent";
 const Dashboard = ({ children }) => {
-    const {texts} = useSettings();
+  const { texts } = useSettings();
 
-    return (
-        <PageContainer title={texts.DASHBOARD}>
-            {children}
-        </PageContainer>
-    );
+  return (
+    <PageContainer title={texts.DASHBOARD}>
+      {children}
+      <PaginationTableParent></PaginationTableParent>
+    </PageContainer>
+  );
 };
 
 export default Dashboard;
