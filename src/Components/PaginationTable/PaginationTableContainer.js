@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import PaginationTable from "./PaginationTable";
-import useHttp from "../../Hooks/useHttp";
+// import useHttp from "../../Hooks/useHttp";
 import moment from "moment";
 import ColumnsDisplaySelector from "./ColumnsDisplaySelector";
 import { useSelector, useDispatch } from "react-redux";
@@ -40,25 +40,26 @@ const PaginationTableContainer = (props) => {
     excelFileName: efn = "",
     prevExId = null,
   } = tableState;
+  const [loading, setLoading] = useState(false);
 
-  const {
-    isLoading,
-    error,
-    setError,
-    sendRequest: getExceptionData,
-  } = useHttp();
-  const {
-    isLoading: isLoadingExcel,
-    error: errorExcel,
-    setError: setErrorExcel,
-    sendRequest: exportToExcel,
-  } = useHttp();
-  const {
-    isLoading: isLoadingCsv,
-    error: errorCsv,
-    setError: setErrorCsv,
-    sendRequest: exportToCsv,
-  } = useHttp();
+  //   const {
+  //     isLoading,
+  //     error,
+  //     setError,
+  //     sendRequest: getExceptionData,
+  //   } = useHttp();
+  //   const {
+  //     isLoading: isLoadingExcel,
+  //     error: errorExcel,
+  //     setError: setErrorExcel,
+  //     sendRequest: exportToExcel,
+  //   } = useHttp();
+  //   const {
+  //     isLoading: isLoadingCsv,
+  //     error: errorCsv,
+  //     setError: setErrorCsv,
+  //     sendRequest: exportToCsv,
+  //   } = useHttp();
 
   const { settings = {} } = useSettings() || {};
 
@@ -72,6 +73,7 @@ const PaginationTableContainer = (props) => {
   const [excludeRecords, setExcludeRecord] = useState([]);
   const [includeRecord, setIncludeRecord] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
+  const isFetching = useRef(false);
 
   const DEFAULT_MIN_WIDTH_CELL = 120;
   const dispatch = useDispatch();
@@ -382,108 +384,101 @@ const PaginationTableContainer = (props) => {
   //     }))
   // }
 
-  const DataHandler = () => {
-    const HandelExceptionData = (data) => {
-      const {
-        result: rows,
-        titles: columns,
-        totalRowsCount,
-        filterOptions,
-        exId,
-      } = data;
+ const DataHandler = async () => {
+  if (isFetching.current) return; // אם כבר יש בקשה רצה — לצאת
+  isFetching.current = true;
 
-      setInnerRows(rows);
-      setColumns(columns);
-      setTotalRowsCount(totalRowsCount);
-      setFilterOptions(filterOptions);
-      dispatch(
-        dataSourceActions.updateSliceValue({
-          tableName: dataFunctionName,
-          key: "totalRows",
-          value: data.totalRowsCount,
-        })
-      );
-      dispatch(
-        dataSourceActions.updateSliceValue({
-          tableName: dataFunctionName,
-          key: "excelFileName",
-          value: excelFileName,
-        })
-      );
-    };
+  try {
+    setLoading(true);
+    const data = await props.fetchData(getDataSource());
 
-    getExceptionData(
-      {
-        url,
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: getDataSource(),
-      },
-      HandelExceptionData
+    const {
+      rows = [],
+      columns = {},
+      totalRowsCount = 0,
+      filterOptions = null,
+    } = data;
+
+    setInnerRows(rows);
+    setColumns(columns);
+    setTotalRowsCount(totalRowsCount);
+    setFilterOptions(filterOptions);
+
+    dispatch(
+      dataSourceActions.updateSliceValue({
+        tableName: dataFunctionName,
+        key: "totalRows",
+        value: totalRowsCount,
+      })
     );
-  };
+  } catch (err) {
+    console.error("❌ DataHandler fetchData failed:", err);
+  } finally {
+    setLoading(false);
+    isFetching.current = false;
+  }
+};
 
-  const exportToExcelHandler = () => {
-    const HandelResponse = (response) => {
-      const url = window.URL.createObjectURL(new Blob([response]));
-      const link = document.createElement("a");
-      link.href = url;
-      //link.setAttribute('download', `${excelFileName}-${moment().format('DDMMYYYYHHmmss')}.xlsx`); //or any other extension
-      link.setAttribute(
-        "download",
-        `${exceptionId ?? ""}-${excelFileName}-${moment().format(
-          "DDMMYYYYHHmmss"
-        )}.xlsx`
-      ); //or any other extension
-      document.body.appendChild(link);
-      link.click();
-    };
 
-    exportToExcel(
-      {
-        url: `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToExcel`,
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        responseType: "blob",
-        body: { DataSourceModel: getDataSource(), Table: dataFunctionName },
-      },
-      HandelResponse
-    );
-  };
+  //   const exportToExcelHandler = () => {
+  //     const HandelResponse = (response) => {
+  //       const url = window.URL.createObjectURL(new Blob([response]));
+  //       const link = document.createElement("a");
+  //       link.href = url;
+  //       //link.setAttribute('download', `${excelFileName}-${moment().format('DDMMYYYYHHmmss')}.xlsx`); //or any other extension
+  //       link.setAttribute(
+  //         "download",
+  //         `${exceptionId ?? ""}-${excelFileName}-${moment().format(
+  //           "DDMMYYYYHHmmss"
+  //         )}.xlsx`
+  //       ); //or any other extension
+  //       document.body.appendChild(link);
+  //       link.click();
+  //     };
 
-  const exportToCsvHandler = () => {
-    const HandelResponse = (response) => {
-      const url = window.URL.createObjectURL(new Blob([response]));
-      const link = document.createElement("a");
-      link.href = url;
-      //link.setAttribute('download', `${excelFileName}-${moment().format('DDMMYYYYHHmmss')}.csv`); //or any other extension
-      link.setAttribute(
-        "download",
-        `${exceptionId ?? ""}-${excelFileName}-${moment().format(
-          "DDMMYYYYHHmmss"
-        )}.csv`
-      ); //or any other extension
-      document.body.appendChild(link);
-      link.click();
-    };
+  //     exportToExcel(
+  //       {
+  //         url: `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToExcel`,
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         responseType: "blob",
+  //         body: { DataSourceModel: getDataSource(), Table: dataFunctionName },
+  //       },
+  //       HandelResponse
+  //     );
+  //   };
 
-    exportToCsv(
-      {
-        url: `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToCsv`,
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        responseType: "blob",
-        body: { DataSourceModel: getDataSource(), Table: dataFunctionName },
-      },
-      HandelResponse
-    );
-  };
+  //   const exportToCsvHandler = () => {
+  //     const HandelResponse = (response) => {
+  //       const url = window.URL.createObjectURL(new Blob([response]));
+  //       const link = document.createElement("a");
+  //       link.href = url;
+  //       //link.setAttribute('download', `${excelFileName}-${moment().format('DDMMYYYYHHmmss')}.csv`); //or any other extension
+  //       link.setAttribute(
+  //         "download",
+  //         `${exceptionId ?? ""}-${excelFileName}-${moment().format(
+  //           "DDMMYYYYHHmmss"
+  //         )}.csv`
+  //       ); //or any other extension
+  //       document.body.appendChild(link);
+  //       link.click();
+  //     };
+
+  //     exportToCsv(
+  //       {
+  //         url: `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToCsv`,
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         responseType: "blob",
+  //         body: { DataSourceModel: getDataSource(), Table: dataFunctionName },
+  //       },
+  //       HandelResponse
+  //     );
+  //   };
 
   const hideFilterHandler = () => {
     dispatch(
@@ -606,8 +601,8 @@ const PaginationTableContainer = (props) => {
       {showTable ? (
         <Box>
           <PaginationTableToolbar
-            exportToExcel={exportToExcelHandler}
-            exportToCsv={exportToCsvHandler}
+            // exportToExcel={exportToExcelHandler}
+            // exportToCsv={exportToCsvHandler}
             hideFilters={hideFilters}
             setHideFilters={hideFilterHandler}
             handleColumnHideToggle={handleColumnHideToggle}
@@ -631,7 +626,7 @@ const PaginationTableContainer = (props) => {
             totalRowsCountUpdated={totalRows}
             filter={innerFilter}
             reorderColumnsHandler={reorderColumnsHandler}
-            isLoading={isLoading || isLoadingExcel || isLoadingCsv}
+            isLoading={loading}
             onRowDoubleClick={onRowDoubleClick}
             onColumnWidthChanged={onColumnWidthChanged}
             dataFunctionName={dataFunctionName}
