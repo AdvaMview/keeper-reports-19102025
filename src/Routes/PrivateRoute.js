@@ -16,10 +16,12 @@ const PrivateRoute = ({ children }) => {
     const checkAuth = async () => {
       try {
         const result = await verifyLogOn();
-        console.log("✅ verifyLogOn result:", result);
+        // console.log("✅ verifyLogOn result:", result);
+        // console.log("✅ verifyLogOn returned user:", result.user);
+
         if (result && result.user) {
-          // dispatch(setUser(result.user));
-          dispatch(setUser({ ...result.user, role: 1 }));
+          dispatch(setUser(result.user));
+          // dispatch(setUser({ ...result.user, role: 1 }));
           setIsValid(true);
         } else {
           setIsValid(false);

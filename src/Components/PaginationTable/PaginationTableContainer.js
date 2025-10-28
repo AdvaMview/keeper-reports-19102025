@@ -1,13 +1,11 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PaginationTable from "./PaginationTable";
-// import useHttp from "../../Hooks/useHttp";
 import moment from "moment";
 import ColumnsDisplaySelector from "./ColumnsDisplaySelector";
 import { useSelector, useDispatch } from "react-redux";
 import PaginationTableToolbar from "./PaginationTableToolbar";
 import SimplePopover from "../UI/SimplePopover";
 import { useSettings } from "../../Hooks/useSettings";
-// import { dataSourceActions } from "../../store/PaginationTable-Slices/dataSource-silce";
 import { dataSourceActions } from "../../store/PaginationTable-Slices/dataSource-slice";
 import { LinearProgress } from "@mui/material";
 import { Box } from "@mui/material";
@@ -40,28 +38,9 @@ const PaginationTableContainer = (props) => {
     excelFileName: efn = "",
     prevExId = null,
   } = tableState;
-  const [loading, setLoading] = useState(false);
 
-  //   const {
-  //     isLoading,
-  //     error,
-  //     setError,
-  //     sendRequest: getExceptionData,
-  //   } = useHttp();
-  //   const {
-  //     isLoading: isLoadingExcel,
-  //     error: errorExcel,
-  //     setError: setErrorExcel,
-  //     sendRequest: exportToExcel,
-  //   } = useHttp();
-  //   const {
-  //     isLoading: isLoadingCsv,
-  //     error: errorCsv,
-  //     setError: setErrorCsv,
-  //     sendRequest: exportToCsv,
-  //   } = useHttp();
-
-  const { settings = {} } = useSettings() || {};
+  const user = useSelector((state) => state.userAccount?.user);
+  const clientId = user?.customerId || user?.CustomerId || null;
 
   const [innerRows, setInnerRows] = useState([]);
   const [columns, setColumns] = useState(null);
@@ -73,7 +52,9 @@ const PaginationTableContainer = (props) => {
   const [excludeRecords, setExcludeRecord] = useState([]);
   const [includeRecord, setIncludeRecord] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
-  const isFetching = useRef(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingExcel, setIsLoadingExcel] = useState(false);
+  const [isLoadingCsv, setIsLoadingCsv] = useState(false);
 
   const DEFAULT_MIN_WIDTH_CELL = 120;
   const dispatch = useDispatch();
@@ -365,8 +346,8 @@ const PaginationTableContainer = (props) => {
       RowsPerPage: limit,
       Filters: filterDictionary,
       Sorts: sortDictionary,
-      clientId: settings?.clientId ?? null,
-      exceptionId: exceptionId ?? 0,
+      clientId: String(clientId),
+      exceptionId: String(exceptionId),
 
       //columns: tableColumns?.filter(f => !f.hidden)?.field
     };
@@ -385,98 +366,126 @@ const PaginationTableContainer = (props) => {
   // }
 
   const DataHandler = async () => {
-    if (!props.fetchData) return;
-
+    setIsLoading(true);
     try {
-      setLoading(true);
-      const data = await props.fetchData(getDataSource());
+      const options = JSON.parse(localStorage.getItem("options")) || {};
+      const headers = {
+        ...options.headers,
+        "Content-Type": "application/json",
+      };
 
-      // מצופה להחזיר: { rows, columns, totalRows, filterOptions? }
+      const payload = getDataSource();
+      console.log("📤 Sending to server:", payload);
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload),
+      });
+
+      const text = await response.text();
+      if (!response.ok) {
+        console.error("❌ Server responded with error:", response.status, text);
+        throw new Error(`Failed to fetch data (${response.status})`);
+      }
+
+      const data = JSON.parse(text);
+      console.log("✅ Response data:", data);
+
       const {
-        rows = [],
-        columns = {},
-        totalRowsCount = 0,
-        filterOptions = null,
+        result: rows,
+        titles: columns,
+        totalRowsCount,
+        filterOptions,
       } = data;
 
-      setInnerRows(rows);
-      setColumns(columns);
-      setTotalRowsCount(totalRowsCount);
-      setFilterOptions(filterOptions);
-
-      dispatch(
-        dataSourceActions.updateSliceValue({
-          tableName: dataFunctionName,
-          key: "totalRows",
-          value: totalRowsCount,
-        })
-      );
-    } catch (err) {
-      console.error("❌ DataHandler fetchData failed:", err);
+      setInnerRows(rows || []);
+      setColumns(columns || {});
+      setTotalRowsCount(totalRowsCount || 0);
+      setFilterOptions(filterOptions || []);
+    } catch (error) {
+      console.error("Error fetching exception data:", error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  //   const exportToExcelHandler = () => {
-  //     const HandelResponse = (response) => {
-  //       const url = window.URL.createObjectURL(new Blob([response]));
-  //       const link = document.createElement("a");
-  //       link.href = url;
-  //       //link.setAttribute('download', `${excelFileName}-${moment().format('DDMMYYYYHHmmss')}.xlsx`); //or any other extension
-  //       link.setAttribute(
-  //         "download",
-  //         `${exceptionId ?? ""}-${excelFileName}-${moment().format(
-  //           "DDMMYYYYHHmmss"
-  //         )}.xlsx`
-  //       ); //or any other extension
-  //       document.body.appendChild(link);
-  //       link.click();
-  //     };
+  const exportToExcelHandler = async () => {
+    setIsLoadingExcel(true);
+    try {
+      const options = JSON.parse(localStorage.getItem("options")) || {};
+      const headers = {
+        ...options.headers,
+        "Content-Type": "application/json",
+      };
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToExcel`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            DataSourceModel: getDataSource(),
+            Table: dataFunctionName,
+          }),
+        }
+      );
 
-  //     exportToExcel(
-  //       {
-  //         url: `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToExcel`,
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         responseType: "blob",
-  //         body: { DataSourceModel: getDataSource(), Table: dataFunctionName },
-  //       },
-  //       HandelResponse
-  //     );
-  //   };
+      if (!response.ok) throw new Error("Failed to export to Excel");
 
-  //   const exportToCsvHandler = () => {
-  //     const HandelResponse = (response) => {
-  //       const url = window.URL.createObjectURL(new Blob([response]));
-  //       const link = document.createElement("a");
-  //       link.href = url;
-  //       //link.setAttribute('download', `${excelFileName}-${moment().format('DDMMYYYYHHmmss')}.csv`); //or any other extension
-  //       link.setAttribute(
-  //         "download",
-  //         `${exceptionId ?? ""}-${excelFileName}-${moment().format(
-  //           "DDMMYYYYHHmmss"
-  //         )}.csv`
-  //       ); //or any other extension
-  //       document.body.appendChild(link);
-  //       link.click();
-  //     };
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `${exceptionId ?? ""}-${excelFileName}-${moment().format(
+          "DDMMYYYYHHmmss"
+        )}.xlsx`
+      );
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    } finally {
+      setIsLoadingExcel(false);
+    }
+  };
 
-  //     exportToCsv(
-  //       {
-  //         url: `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToCsv`,
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         responseType: "blob",
-  //         body: { DataSourceModel: getDataSource(), Table: dataFunctionName },
-  //       },
-  //       HandelResponse
-  //     );
-  //   };
+  const exportToCsvHandler = async () => {
+    setIsLoadingCsv(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToCsv`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            DataSourceModel: getDataSource(),
+            Table: dataFunctionName,
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to export to CSV");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `${exceptionId ?? ""}-${excelFileName}-${moment().format(
+          "DDMMYYYYHHmmss"
+        )}.csv`
+      );
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error exporting to CSV:", error);
+    } finally {
+      setIsLoadingCsv(false);
+    }
+  };
 
   const hideFilterHandler = () => {
     dispatch(
@@ -599,8 +608,8 @@ const PaginationTableContainer = (props) => {
       {showTable ? (
         <Box>
           <PaginationTableToolbar
-            // exportToExcel={exportToExcelHandler}
-            // exportToCsv={exportToCsvHandler}
+            exportToExcel={exportToExcelHandler}
+            exportToCsv={exportToCsvHandler}
             hideFilters={hideFilters}
             setHideFilters={hideFilterHandler}
             handleColumnHideToggle={handleColumnHideToggle}
@@ -624,7 +633,7 @@ const PaginationTableContainer = (props) => {
             totalRowsCountUpdated={totalRows}
             filter={innerFilter}
             reorderColumnsHandler={reorderColumnsHandler}
-            isLoading={loading}
+            isLoading={isLoading || isLoadingExcel || isLoadingCsv}
             onRowDoubleClick={onRowDoubleClick}
             onColumnWidthChanged={onColumnWidthChanged}
             dataFunctionName={dataFunctionName}

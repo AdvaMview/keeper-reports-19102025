@@ -1,4 +1,4 @@
-import { clearAuthData  } from "./StorageUtils";
+import { clearAuthData } from "./StorageUtils";
 
 async function handleTokenRefresh(response) {
   const newToken = response.headers.get("x-refresh-token");
@@ -32,20 +32,22 @@ export async function login(post) {
 
   const data = await response.json();
 
-  if (data.token) {
+  const token = data.accessToken;
+  if (token) {
     const options = {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${data.token}`,
+        Authorization: `Bearer ${token}`,
       },
     };
-    localStorage.setItem("token", data.token);
+    localStorage.setItem("token", token);
     localStorage.setItem("options", JSON.stringify(options));
   }
 
   return data;
 }
+
 
 export async function verifyLogOn() {
   const options = JSON.parse(localStorage.getItem("options"));
@@ -59,6 +61,7 @@ export async function verifyLogOn() {
   await handleTokenRefresh(response);
 
   if (response.status === 401) return false;
+
   if (!response.ok) {
     const error = new Error("Failed to verifyLogOn.");
     error.status = response.status;
@@ -67,63 +70,68 @@ export async function verifyLogOn() {
 
   const data = await response.json();
 
-  // ✳️ פענוח ה־JWT אם קיים
   if (token) {
     const decoded = decodeJwt(token);
     if (decoded) {
-      data.user = {
-        ...data.user,
-        role: decoded.Role,
-        userId: decoded.id,
-        customerId: decoded.CustomerId,
-      };
+      const nowSec = Math.floor(Date.now() / 1000);
+      const expired = decoded.exp && decoded.exp < nowSec;
+
+      data.user.id = decoded.id ?? data.user.id;
+      data.user.customerId = decoded.CustomerId ?? data.user.customerId;
+      data.user.role = decoded.Role ?? decoded.role ?? data.user.role;
+      data.user.tokenExpired = expired;
     }
   }
 
+  console.log("✅ verifyLogOn fixed user:", data.user);
   return data;
 }
 
-
-function decodeJwt(token) {
+function base64UrlToString(base64Url) {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
+    let base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4) base64 += "=";
+    const json = atob(base64);
+    return decodeURIComponent(
+      json
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
     );
-    return JSON.parse(jsonPayload);
   } catch (e) {
-    console.error("❌ Failed to decode JWT:", e);
+    console.error("base64UrlToString failed:", e);
     return null;
   }
 }
 
+export function decodeJwt(token) {
+  if (!token) return null;
+  try {
+    const raw = token.startsWith("Bearer ") ? token.slice(7) : token;
+    const parts = raw.split(".");
+    if (parts.length !== 3) throw new Error("Invalid JWT format");
+    const payloadStr = base64UrlToString(parts[1]);
+    if (!payloadStr) return null;
 
-export async function GetBIReports() {
-  const options = JSON.parse(localStorage.getItem("options"));
-  const response = await fetch(
-    `${process.env.REACT_APP_API_BASE_URL}TrafficReports/GetBIReports`,
-    options
-  );
+    const decoded = JSON.parse(payloadStr);
 
-  await handleTokenRefresh(response);
-
-  if (response.status === 401) return false;
-  if (!response.ok) {
-    const error = new Error("Failed to GetBIReports.");
-    error.status = response.status;
-    throw error;
+    return decoded;
+  } catch (err) {
+    console.error("❌ Failed to decode JWT:", err);
+    return null;
   }
+}
 
-  return response.json();
+export function isJwtExpired(payload) {
+  if (!payload) return true;
+  if (!payload.exp) return false;
+  const nowSec = Math.floor(Date.now() / 1000);
+  return payload.exp <= nowSec;
 }
 
 export async function logout() {
   const options = JSON.parse(localStorage.getItem("options"));
-  
+
   try {
     const response = await fetch(
       `${process.env.REACT_APP_API_BASE_URL}Auth/Logout`,
@@ -131,7 +139,7 @@ export async function logout() {
     );
 
     if (response.status === 401 || !response.ok) {
-      clearAuthData(); 
+      clearAuthData();
       window.location.href = "/login";
       return;
     }

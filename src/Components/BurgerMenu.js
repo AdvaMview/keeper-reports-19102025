@@ -28,7 +28,8 @@ const BurgerMenu = () => {
   const userRole = user?.role;
 
   const filteredMenuItems = menuItems.filter(
-    (item) => !item.PermissionRoles || item.PermissionRoles.includes(userRole)
+    (item) =>
+      !item.PermissionRoles || item.PermissionRoles.includes(Number(userRole))
   );
 
   const toggleDrawer = (state) => () => setOpen(state);
@@ -39,13 +40,13 @@ const BurgerMenu = () => {
 
   const isRTL = dir === "ltr";
 
-  useEffect(() => {
-    console.log("Direction changed to:", dir);
-  }, [dir]);
-  useEffect(() => {
-    console.log("👤 userRole:", userRole);
-    console.log("📜 menuItems:", menuItems);
-  }, [userRole]);
+  // useEffect(() => {
+  //   console.log("Direction changed to:", dir);
+  // }, [dir]);
+  // useEffect(() => {
+  //   console.log("👤 userRole:", userRole);
+  //   console.log("📜 menuItems:", menuItems);
+  // }, [userRole]);
 
   return (
     <>

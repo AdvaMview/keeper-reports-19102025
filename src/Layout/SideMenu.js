@@ -16,7 +16,8 @@ const SideMenu = () => {
   const userRole = user?.role;
 
   const filteredMenuItems = menuItems.filter(
-    (item) => !item.PermissionRoles || item.PermissionRoles.includes(userRole)
+    (item) =>
+      !item.PermissionRoles || item.PermissionRoles.includes(Number(userRole))
   );
 
   return (

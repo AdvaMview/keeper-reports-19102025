@@ -9,20 +9,8 @@ import Reports from "../Pages/Reports";
 import Settings from "../Pages/Settings";
 import PrivateRoute from "./PrivateRoute";
 
-// const isAuthenticated = () => {
-//     //TODO check auth token validity
-//     return !!localStorage.getItem('accessToken');
-// };
-
-// // PrivateRoute wrapper for React Router v6
-// const PrivateRoute = ({ children }) => {
-//     return isAuthenticated() ? children :
-//      <Navigate to="/Login" replace />;
-// };
-
 const RoutesComp = () => (
   <Routes>
-    {/* <Route path="/Login" element={<Login />} /> */}
     <Route path="login" element={<LoginLayout />}>
       <Route index element={<Login />} />
     </Route>
@@ -31,15 +19,28 @@ const RoutesComp = () => (
         index
         element={
           <PrivateRoute>
-            <Dashboard />
+            <Dashboard
+              exception={{
+                ex_id: "100",
+                ex_name: "Radio Exceptions",
+                refreshResult: false,
+              }}
+            />
           </PrivateRoute>
         }
       />
+
       <Route
         path="dashboard"
         element={
           <PrivateRoute>
-            <Dashboard />
+            <Dashboard
+              exception={{
+                ex_id: "100",
+                ex_name: "Radio Exceptions",
+                refreshResult: false,
+              }}
+            />
           </PrivateRoute>
         }
       />

@@ -3,7 +3,7 @@ import PaginationTableContainer from './PaginationTableContainer';
 
 const PaginationTableWrapper = (props) => {
     const {
-        maxHeight,
+        // maxHeight,
         dataFunctionName,
         onRowDoubleClick,
         exceptionId,
