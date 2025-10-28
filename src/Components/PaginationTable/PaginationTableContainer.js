@@ -1,14 +1,13 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import PaginationTable from "./PaginationTable";
-import moment from "moment";
 import ColumnsDisplaySelector from "./ColumnsDisplaySelector";
 import { useSelector, useDispatch } from "react-redux";
 import PaginationTableToolbar from "./PaginationTableToolbar";
 import SimplePopover from "../UI/SimplePopover";
 import { useSettings } from "../../Hooks/useSettings";
 import { dataSourceActions } from "../../store/PaginationTable-Slices/dataSource-slice";
-import { LinearProgress } from "@mui/material";
-import { Box } from "@mui/material";
+import { LinearProgress, Box } from "@mui/material";
+import { getExceptionData, exportToExcel, exportToCsv  } from "../../Utils/Api";
 
 const PaginationTableContainer = (props) => {
   const {
@@ -39,8 +38,7 @@ const PaginationTableContainer = (props) => {
     prevExId = null,
   } = tableState;
 
-  const user = useSelector((state) => state.userAccount?.user);
-  const clientId = user?.customerId || user?.CustomerId || null;
+  const { settings = {} } = useSettings() || {};
 
   const [innerRows, setInnerRows] = useState([]);
   const [columns, setColumns] = useState(null);
@@ -346,13 +344,43 @@ const PaginationTableContainer = (props) => {
       RowsPerPage: limit,
       Filters: filterDictionary,
       Sorts: sortDictionary,
-      clientId: String(clientId),
-      exceptionId: String(exceptionId),
+      ClientId: settings?.clientId ?? null,
+      // ClientId: "100",
+      exceptionId: exceptionId ?? 0,
 
       //columns: tableColumns?.filter(f => !f.hidden)?.field
     };
     return dataSource;
   };
+
+  // const getDataSource = () => {
+  //   let filterDictionary = {};
+  //   let sortDictionary = {};
+  //   if (efn === excelFileName) {
+  //     filterDictionary = Object.assign(
+  //       {},
+  //       ...filter.map((x) => ({
+  //         [x.columnName]: `${x.filterText}|${x.filterType}`,
+  //       }))
+  //     );
+  //     sortDictionary = Object.assign(
+  //       {},
+  //       ...sort.map((x) => ({ [x.columnName]: x.direction }))
+  //     );
+  //   }
+
+  //   let dataSource = {
+  //     Page: page,
+  //     RowsPerPage: limit,
+  //     Filters: filterDictionary,
+  //     Sorts: sortDictionary,
+  //     ClientId: "100",
+  //     ExceptionId: exceptionId?.toString() || "100",
+  //   };
+
+  //   console.log("📦 Sent DataSource:", dataSource);
+  //   return dataSource;
+  // };
 
   // const clearDataSource = () => {
   //     setInnerRows([])
@@ -365,32 +393,12 @@ const PaginationTableContainer = (props) => {
   //     }))
   // }
 
-  const DataHandler = async () => {
-    setIsLoading(true);
+  const DataHandler = useCallback(async () => {
+    const dataSource = getDataSource();
+    const token = localStorage.getItem("token");
+
     try {
-      const options = JSON.parse(localStorage.getItem("options")) || {};
-      const headers = {
-        ...options.headers,
-        "Content-Type": "application/json",
-      };
-
-      const payload = getDataSource();
-      console.log("📤 Sending to server:", payload);
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(payload),
-      });
-
-      const text = await response.text();
-      if (!response.ok) {
-        console.error("❌ Server responded with error:", response.status, text);
-        throw new Error(`Failed to fetch data (${response.status})`);
-      }
-
-      const data = JSON.parse(text);
-      console.log("✅ Response data:", data);
+      const data = await getExceptionData(dataSource, token);
 
       const {
         result: rows,
@@ -402,90 +410,35 @@ const PaginationTableContainer = (props) => {
       setInnerRows(rows || []);
       setColumns(columns || {});
       setTotalRowsCount(totalRowsCount || 0);
-      setFilterOptions(filterOptions || []);
-    } catch (error) {
-      console.error("Error fetching exception data:", error);
-    } finally {
-      setIsLoading(false);
+      setFilterOptions(filterOptions || {});
+    } catch (err) {
+      console.error("❌ DataHandler failed:", err);
     }
-  };
+  }, [getDataSource, excelFileName, exceptionId]);
 
-  const exportToExcelHandler = async () => {
+ const exportToExcelHandler = async () => {
+  try {
     setIsLoadingExcel(true);
-    try {
-      const options = JSON.parse(localStorage.getItem("options")) || {};
-      const headers = {
-        ...options.headers,
-        "Content-Type": "application/json",
-      };
-      const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToExcel`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            DataSourceModel: getDataSource(),
-            Table: dataFunctionName,
-          }),
-        }
-      );
+    const token = localStorage.getItem("token");
+    await exportToExcel(getDataSource(), dataFunctionName, token, exceptionId, excelFileName);
+  } catch (err) {
+    console.error("❌ Excel export failed:", err);
+  } finally {
+    setIsLoadingExcel(false);
+  }
+};
 
-      if (!response.ok) throw new Error("Failed to export to Excel");
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute(
-        "download",
-        `${exceptionId ?? ""}-${excelFileName}-${moment().format(
-          "DDMMYYYYHHmmss"
-        )}.xlsx`
-      );
-      document.body.appendChild(link);
-      link.click();
-    } catch (error) {
-      console.error("Error exporting to Excel:", error);
-    } finally {
-      setIsLoadingExcel(false);
-    }
-  };
-
-  const exportToCsvHandler = async () => {
+ const exportToCsvHandler = async () => {
+  try {
     setIsLoadingCsv(true);
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToCsv`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            DataSourceModel: getDataSource(),
-            Table: dataFunctionName,
-          }),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to export to CSV");
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute(
-        "download",
-        `${exceptionId ?? ""}-${excelFileName}-${moment().format(
-          "DDMMYYYYHHmmss"
-        )}.csv`
-      );
-      document.body.appendChild(link);
-      link.click();
-    } catch (error) {
-      console.error("Error exporting to CSV:", error);
-    } finally {
-      setIsLoadingCsv(false);
-    }
-  };
+    const token = localStorage.getItem("token");
+    await exportToCsv(getDataSource(), dataFunctionName, token, exceptionId, excelFileName);
+  } catch (err) {
+    console.error("❌ CSV export failed:", err);
+  } finally {
+    setIsLoadingCsv(false);
+  }
+};
 
   const hideFilterHandler = () => {
     dispatch(
@@ -566,7 +519,7 @@ const PaginationTableContainer = (props) => {
     if (selectedAllRecords) {
       setSelectedRecord(innerRows.map((record) => record.EX_ID));
     }
-  }, [innerRows]);
+  }, [innerRows, selectedAllRecords]);
 
   const onSelectOneRecord = (event, recordId) => {
     if (!selectedRecords.includes(recordId)) {

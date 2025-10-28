@@ -1,4 +1,5 @@
 import { clearAuthData } from "./StorageUtils";
+import moment from "moment";
 
 async function handleTokenRefresh(response) {
   const newToken = response.headers.get("x-refresh-token");
@@ -47,7 +48,6 @@ export async function login(post) {
 
   return data;
 }
-
 
 export async function verifyLogOn() {
   const options = JSON.parse(localStorage.getItem("options"));
@@ -128,6 +128,117 @@ export function isJwtExpired(payload) {
   const nowSec = Math.floor(Date.now() / 1000);
   return payload.exp <= nowSec;
 }
+
+export const getExceptionData = async (dataSource, token) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}RadioException/ExceptionData`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(dataSource),
+      }
+    );
+
+    if (!response.ok) throw new Error("Failed to load data");
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error("❌ getExceptionData failed:", err);
+    throw err;
+  }
+};
+
+export const exportToExcel = async (
+  dataSource,
+  tableName,
+  token,
+  exceptionId,
+  excelFileName
+) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToExcel`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          DataSourceModel: dataSource,
+          Table: tableName,
+        }),
+      }
+    );
+
+    if (!response.ok) throw new Error("Failed to export Excel");
+
+    const blob = await response.blob();
+    const urlBlob = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = urlBlob;
+    link.setAttribute(
+      "download",
+      `${exceptionId ?? ""}-${excelFileName}-${moment().format(
+        "DDMMYYYYHHmmss"
+      )}.xlsx`
+    );
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (err) {
+    console.error("❌ exportToExcel failed:", err);
+    throw err;
+  }
+};
+
+export const exportToCsv = async (
+  dataSource,
+  tableName,
+  token,
+  exceptionId,
+  excelFileName
+) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_BASE_URL}RadioException/ExportToCsv`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          DataSourceModel: dataSource,
+          Table: tableName,
+        }),
+      }
+    );
+
+    if (!response.ok) throw new Error("Failed to export CSV");
+
+    const blob = await response.blob();
+    const urlBlob = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = urlBlob;
+    link.setAttribute(
+      "download",
+      `${exceptionId ?? ""}-${excelFileName}-${moment().format(
+        "DDMMYYYYHHmmss"
+      )}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (err) {
+    console.error("❌ exportToCsv failed:", err);
+    throw err;
+  }
+};
 
 export async function logout() {
   const options = JSON.parse(localStorage.getItem("options"));
