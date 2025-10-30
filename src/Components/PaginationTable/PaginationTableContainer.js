@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import { exportToExcel, exportToCsv, getBIReports } from "../../Utils/Api";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import Filter from "./Filter";
 
 const PaginationTableContainer = (props) => {
   const {
@@ -64,7 +63,8 @@ const PaginationTableContainer = (props) => {
   const [reports, setReports] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [biFilters, setBiFilters] = useState([]);
-
+  const settings = useSettings();
+  const palette = useSelector((state) => state.appSettings.selectedPalette);
   const DEFAULT_MIN_WIDTH_CELL = 120;
   const dispatch = useDispatch();
 
@@ -310,17 +310,14 @@ const PaginationTableContainer = (props) => {
   };
 
   const handleFilter = (filterValue, filterType, columnName) => {
-    let temp = filter.map((f) => {
-      if (f.columnName === columnName) {
-        return {
-          ...f,
-          filterText: filterValue,
-          filterType: filterType,
-        };
-      }
-      return f;
-    });
-    setInnerFilter(temp);
+    setInnerFilter((prev) =>
+      prev.map((f) =>
+        f.columnName === columnName
+          ? { ...f, filterText: filterValue, filterType }
+          : f
+      )
+    );
+
     dispatch(
       dataSourceActions.updateSliceValue({
         tableName: dataFunctionName,
@@ -329,6 +326,16 @@ const PaginationTableContainer = (props) => {
       })
     );
   };
+  
+  useEffect(() => {
+    dispatch(
+      dataSourceActions.updateSliceValue({
+        tableName: dataFunctionName,
+        key: "filter",
+        value: innerFilter,
+      })
+    );
+  }, [innerFilter, dataFunctionName, dispatch]);
 
   const clearFilter = (event, columnName) => {
     let temp = filter.map((f) => {
@@ -401,38 +408,18 @@ const PaginationTableContainer = (props) => {
 
   const DataHandler = useCallback(async () => {
     setIsLoading(true);
-    // const dataSource = getDataSource();
-    // const token = localStorage.getItem("token");
 
     try {
-      console.log("🚫 Skipping server call. Using mock data instead.");
-
-      const data = [
-        { ID: 1, Name: "Example Row 1", Value: 42 },
-        { ID: 2, Name: "Example Row 2", Value: 17 },
-        { ID: 3, Name: "Example Row 3", Value: 99 },
-      ];
-
+      const data = [];
       let rows = [];
-      let columns = {};
+      let columns = {
+        ID: "number",
+        Name: "string",
+        Value: "number",
+      };
+
       let totalRowsCount = 0;
 
-      if (Array.isArray(data)) {
-        rows = data;
-      } else if (data && typeof data === "object") {
-        rows = [data];
-      } else {
-        rows = [];
-      }
-
-      if (rows.length > 0) {
-        const firstRow = rows[0];
-        columns = Object.keys(firstRow).reduce((acc, key) => {
-          acc[key] = typeof firstRow[key];
-          return acc;
-        }, {});
-      }
-      totalRowsCount = rows.length;
       setInnerRows(rows);
       setColumns(columns);
       setTotalRowsCount(totalRowsCount);
@@ -596,6 +583,14 @@ const PaginationTableContainer = (props) => {
   // const showTable = tableColumns && tableColumns.length > 0;
   const showTable = columns && Object.keys(columns).length > 0;
 
+  const allParamsFilled =
+    biFilters.length > 0 &&
+    biFilters.every(
+      (param) =>
+        innerFilter.find((f) => f.columnName === param.ParameterName)
+          ?.filterText
+    );
+
   //console.log('filterOptions', filterOptions)
   return (
     <>
@@ -609,17 +604,33 @@ const PaginationTableContainer = (props) => {
               value={selectedReport}
               onChange={(e, value) => handleSelectReport(value)}
               renderInput={(params) => (
-                <TextField {...params} label="בחר דוח BI" variant="outlined" />
+                <TextField
+                  {...params}
+                  label={settings.texts.SELECT_REPORT}
+                  variant="outlined"
+                  sx={{
+                    width: 350,
+                    "& .MuiInputLabel-root": {
+                      top: 3,
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      "& input": {
+                        padding: "8.5px 14px",
+                      },
+                    },
+                  }}
+                />
               )}
               sx={{ width: 350 }}
             />
 
-            {selectedReport && (
+            {/* {selectedReport && (
               <Typography variant="body2" color="text.secondary">
                 {selectedReport.biReportName}
               </Typography>
-            )}
+            )} */}
           </Box>
+
           {biFilters.length > 0 && (
             <Box
               sx={{
@@ -628,9 +639,9 @@ const PaginationTableContainer = (props) => {
                 gap: 2,
                 mb: 2,
                 p: 2,
-                border: "1px solid #ddd",
+                border: palette.border,
                 borderRadius: 2,
-                backgroundColor: "#fafafa",
+                backgroundColor: palette.main,
               }}
             >
               {biFilters.map((param, idx) => {
@@ -643,6 +654,7 @@ const PaginationTableContainer = (props) => {
                       key={idx}
                       label={param.ParameterName}
                       type="datetime-local"
+                      InputLabelProps={{ shrink: true }}
                       value={value}
                       onChange={(e) =>
                         handleFilter(
@@ -663,6 +675,7 @@ const PaginationTableContainer = (props) => {
                       key={idx}
                       label={param.ParameterName}
                       type="number"
+                      InputLabelProps={{ shrink: true }}
                       value={value}
                       onChange={(e) =>
                         handleFilter(
@@ -681,6 +694,7 @@ const PaginationTableContainer = (props) => {
                   <TextField
                     key={idx}
                     label={param.ParameterName}
+                    InputLabelProps={{ shrink: true }}
                     type="text"
                     value={value}
                     onChange={(e) =>
@@ -695,6 +709,25 @@ const PaginationTableContainer = (props) => {
                   />
                 );
               })}
+              <button
+                onClick={exportToExcelHandler}
+                disabled={!allParamsFilled}
+                style={{
+                  padding: "6px 16px",
+                  borderRadius: palette?.borderRadius || "6px",
+                  border: "none",
+                  backgroundColor: allParamsFilled
+                    ? palette.primary.main
+                    : palette.border,
+                  color: allParamsFilled
+                    ? palette.primary?.contrastText
+                    : palette.textSecondary,
+                  cursor: allParamsFilled ? "pointer" : "not-allowed",
+                  transition: "0.2s",
+                }}
+              >
+                {settings.texts.EXECUTE}
+              </button>
             </Box>
           )}
 
@@ -714,7 +747,22 @@ const PaginationTableContainer = (props) => {
             setSelectedRecord={setSelectedRecord}
             setSelectedAllRecords={setSelectedAllRecords}
           />
-          <ThemeProvider theme={createTheme()}>
+          <ThemeProvider
+            theme={createTheme({
+              palette: {
+                mode: palette.mode || "light",
+                primary: palette.primary,
+                background: {
+                  default: palette.background,
+                  paper: palette.paper,
+                },
+                text: {
+                  primary: palette.text.primary,
+                  secondary: palette.text.secondary,
+                },
+              },
+            })}
+          >
             <PaginationTable
               clearFilter={clearFilter}
               handleFilter={handleFilter}

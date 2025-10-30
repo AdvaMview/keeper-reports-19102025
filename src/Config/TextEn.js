@@ -51,6 +51,8 @@ const TextEn = {
   DARK_MODE: "Dark Mode",
   SWITCH_TO_ENGLISH: "Switch to English",
   SWITCH_TO_HEBREW: "Switch to Hebrew",
+  EXECUTE: "Execute",
+  SELECT_REPORT: "Select report",
 };
 
 export default TextEn;

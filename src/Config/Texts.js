@@ -51,6 +51,8 @@ const TextHe = {
   DARK_MODE: "מצב כהה",
   SWITCH_TO_ENGLISH: "עבור לאנגלית",
   SWITCH_TO_HEBREW: "עבור לעברית",
+  EXECUTE: "בצע",
+  SELECT_REPORT: "בחר דוח",
 };
 
 export default TextHe;
