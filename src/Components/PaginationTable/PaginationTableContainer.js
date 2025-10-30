@@ -13,9 +13,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import dayjs from "dayjs";
+import "dayjs/locale/he";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { exportToExcel, exportToCsv, getBIReports } from "../../Utils/Api";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 const PaginationTableContainer = (props) => {
   const {
     dataFunctionName,
@@ -326,7 +330,7 @@ const PaginationTableContainer = (props) => {
       })
     );
   };
-  
+
   useEffect(() => {
     dispatch(
       dataSourceActions.updateSliceValue({
@@ -336,6 +340,24 @@ const PaginationTableContainer = (props) => {
       })
     );
   }, [innerFilter, dataFunctionName, dispatch]);
+
+  useEffect(() => {
+    if (!biFilters || biFilters.length === 0) return;
+    if (!user?.customerId) return;
+
+    const hasCustomerParam = biFilters.some(
+      (p) => p.ParameterName === "CustomerID"
+    );
+    if (!hasCustomerParam) return;
+
+    setInnerFilter((prev) =>
+      prev.map((f) =>
+        f.columnName === "CustomerID"
+          ? { ...f, filterText: user.customerId }
+          : f
+      )
+    );
+  }, [biFilters, user?.customerId]);
 
   const clearFilter = (event, columnName) => {
     let temp = filter.map((f) => {
@@ -585,11 +607,10 @@ const PaginationTableContainer = (props) => {
 
   const allParamsFilled =
     biFilters.length > 0 &&
-    biFilters.every(
-      (param) =>
-        innerFilter.find((f) => f.columnName === param.ParameterName)
-          ?.filterText
-    );
+    biFilters.every((param) => {
+      const f = innerFilter.find((f) => f.columnName === param.ParameterName);
+      return f && f.filterText && f.filterText.trim() !== "";
+    });
 
   //console.log('filterOptions', filterOptions)
   return (
@@ -623,12 +644,6 @@ const PaginationTableContainer = (props) => {
               )}
               sx={{ width: 350 }}
             />
-
-            {/* {selectedReport && (
-              <Typography variant="body2" color="text.secondary">
-                {selectedReport.biReportName}
-              </Typography>
-            )} */}
           </Box>
 
           {biFilters.length > 0 && (
@@ -645,27 +660,52 @@ const PaginationTableContainer = (props) => {
               }}
             >
               {biFilters.map((param, idx) => {
-                const value =
+                if (param.ParameterName === "CustomerID") return null;
+
+                const currentValue =
                   innerFilter.find((f) => f.columnName === param.ParameterName)
                     ?.filterText || "";
+
+                const handleLocalChange = (newValue) => {
+                  const value =
+                    typeof newValue === "string"
+                      ? newValue
+                      : newValue
+                      ? dayjs(newValue).toISOString()
+                      : "";
+
+                  setInnerFilter((prev) =>
+                    prev.map((f) =>
+                      f.columnName === param.ParameterName
+                        ? { ...f, filterText: value }
+                        : f
+                    )
+                  );
+                };
+
                 if (param.Type === "DATETIME") {
                   return (
-                    <TextField
+                    <LocalizationProvider
                       key={idx}
-                      label={param.ParameterName}
-                      type="datetime-local"
-                      InputLabelProps={{ shrink: true }}
-                      value={value}
-                      onChange={(e) =>
-                        handleFilter(
-                          e.target.value,
-                          "CONTAINS",
-                          param.ParameterName
-                        )
-                      }
-                      size="small"
-                      sx={{ width: 250 }}
-                    />
+                      dateAdapter={AdapterDayjs}
+                      adapterLocale="he"
+                    >
+                      <DateTimePicker
+                        label={param.ParameterName}
+                        value={currentValue ? dayjs(currentValue) : null}
+                        onChange={(newValue) =>
+                          handleLocalChange(
+                            newValue ? newValue.toISOString() : ""
+                          )
+                        }
+                        slotProps={{
+                          textField: {
+                            size: "small",
+                            sx: { width: 250 },
+                          },
+                        }}
+                      />
+                    </LocalizationProvider>
                   );
                 }
 
@@ -676,14 +716,8 @@ const PaginationTableContainer = (props) => {
                       label={param.ParameterName}
                       type="number"
                       InputLabelProps={{ shrink: true }}
-                      value={value}
-                      onChange={(e) =>
-                        handleFilter(
-                          e.target.value,
-                          "CONTAINS",
-                          param.ParameterName
-                        )
-                      }
+                      value={currentValue}
+                      onChange={(e) => handleLocalChange(e.target.value)}
                       size="small"
                       sx={{ width: 200 }}
                     />
@@ -694,21 +728,16 @@ const PaginationTableContainer = (props) => {
                   <TextField
                     key={idx}
                     label={param.ParameterName}
-                    InputLabelProps={{ shrink: true }}
                     type="text"
-                    value={value}
-                    onChange={(e) =>
-                      handleFilter(
-                        e.target.value,
-                        "CONTAINS",
-                        param.ParameterName
-                      )
-                    }
+                    InputLabelProps={{ shrink: true }}
+                    value={currentValue}
+                    onChange={(e) => handleLocalChange(e.target.value)}
                     size="small"
                     sx={{ width: 200 }}
                   />
                 );
               })}
+
               <button
                 onClick={exportToExcelHandler}
                 disabled={!allParamsFilled}
