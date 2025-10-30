@@ -1,5 +1,6 @@
 import { clearAuthData } from "./StorageUtils";
 import moment from "moment";
+import { decodeJwt } from "./tokenUtils";
 
 async function handleTokenRefresh(response) {
   const newToken = response.headers.get("x-refresh-token");
@@ -87,70 +88,59 @@ export async function verifyLogOn() {
   return data;
 }
 
-function base64UrlToString(base64Url) {
+export const getBIReports = async () => {
   try {
-    let base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    while (base64.length % 4) base64 += "=";
-    const json = atob(base64);
-    return decodeURIComponent(
-      json
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
-    );
-  } catch (e) {
-    console.error("base64UrlToString failed:", e);
-    return null;
-  }
-}
-
-export function decodeJwt(token) {
-  if (!token) return null;
-  try {
-    const raw = token.startsWith("Bearer ") ? token.slice(7) : token;
-    const parts = raw.split(".");
-    if (parts.length !== 3) throw new Error("Invalid JWT format");
-    const payloadStr = base64UrlToString(parts[1]);
-    if (!payloadStr) return null;
-
-    const decoded = JSON.parse(payloadStr);
-
-    return decoded;
-  } catch (err) {
-    console.error("❌ Failed to decode JWT:", err);
-    return null;
-  }
-}
-
-export function isJwtExpired(payload) {
-  if (!payload) return true;
-  if (!payload.exp) return false;
-  const nowSec = Math.floor(Date.now() / 1000);
-  return payload.exp <= nowSec;
-}
-
-export const getExceptionData = async (dataSource, token) => {
-  try {
+    const token = localStorage.getItem("token");
     const response = await fetch(
-      `${process.env.REACT_APP_API_BASE_URL}RadioException/ExceptionData`,
+      `${process.env.REACT_APP_API_BASE_URL}TrafficReports/GetBIReports`,
       {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(dataSource),
+        }, //,
+        //body: JSON.stringify({}),
       }
     );
 
-    if (!response.ok) throw new Error("Failed to load data");
-    const data = await response.json();
+    if (!response.ok) {
+      console.warn("⚠️ Server returned status:", response.status);
+      return [];
+    }
+
+    const data = await response.json().catch(() => []);
+    console.log("✅ BI Reports loaded:", data);
     return data;
   } catch (err) {
-    console.error("❌ getExceptionData failed:", err);
-    throw err;
+    console.error("❌ Error fetching BI reports:", err);
+    return [];
   }
 };
+
+// export const getExceptionData = async (dataSource, token) => {
+//   try {
+//     const response = await fetch(
+//       `${process.env.REACT_APP_API_BASE_URL}TrafficReports/GetBIReports`,
+//       {
+//         method: "GET",
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: `Bearer ${token}`,
+//         },
+//         body: JSON.stringify(dataSource),
+//       }
+//     );
+
+//     if (!response.ok) throw new Error("Failed to load data");
+
+//     const data = await response.json();
+//     console.log("✅ Server response:", data);
+//     return data;
+//   } catch (err) {
+//     console.error("❌ getExceptionData failed:", err);
+//     throw err;
+//   }
+// };
 
 export const exportToExcel = async (
   dataSource,

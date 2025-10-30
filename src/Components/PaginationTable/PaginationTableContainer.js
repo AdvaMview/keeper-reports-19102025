@@ -6,8 +6,16 @@ import PaginationTableToolbar from "./PaginationTableToolbar";
 import SimplePopover from "../UI/SimplePopover";
 import { useSettings } from "../../Hooks/useSettings";
 import { dataSourceActions } from "../../store/PaginationTable-Slices/dataSource-slice";
-import { LinearProgress, Box } from "@mui/material";
-import { getExceptionData, exportToExcel, exportToCsv  } from "../../Utils/Api";
+import {
+  LinearProgress,
+  Box,
+  Autocomplete,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { exportToExcel, exportToCsv, getBIReports } from "../../Utils/Api";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import Filter from "./Filter";
 
 const PaginationTableContainer = (props) => {
   const {
@@ -38,7 +46,7 @@ const PaginationTableContainer = (props) => {
     prevExId = null,
   } = tableState;
 
-  const { settings = {} } = useSettings() || {};
+  const user = useSelector((state) => state.userAccount.user);
 
   const [innerRows, setInnerRows] = useState([]);
   const [columns, setColumns] = useState(null);
@@ -53,6 +61,9 @@ const PaginationTableContainer = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingExcel, setIsLoadingExcel] = useState(false);
   const [isLoadingCsv, setIsLoadingCsv] = useState(false);
+  const [reports, setReports] = useState([]);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [biFilters, setBiFilters] = useState([]);
 
   const DEFAULT_MIN_WIDTH_CELL = 120;
   const dispatch = useDispatch();
@@ -79,6 +90,38 @@ const PaginationTableContainer = (props) => {
       );
     }
   }, [prevExId]);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      const data = await getBIReports();
+      setReports(data || []);
+    };
+    fetchReports();
+  }, []);
+
+  const handleSelectReport = (report) => {
+    setSelectedReport(report);
+
+    if (!report?.biReportParameters) {
+      setBiFilters([]);
+      return;
+    }
+
+    try {
+      const cleanParams = report.biReportParameters
+        .replace(/^'|'$/g, "")
+        .replace(/(\w+):/g, '"$1":')
+        .replace(/: (\w+)/g, ': "$1"');
+
+      const parsed = JSON.parse(cleanParams);
+      setBiFilters(parsed);
+
+      console.log("✅ Parsed BI Filters:", parsed);
+    } catch (err) {
+      console.error("❌ Failed to parse BI parameters:", err);
+      setBiFilters([]);
+    }
+  };
 
   const clearSort = () => {
     dispatch(
@@ -171,8 +214,12 @@ const PaginationTableContainer = (props) => {
   }, [excelFileName, dataFunctionName]);
 
   useEffect(() => {
-    DataHandler();
-  }, [sort, filter, limit, page, refresh]);
+    const timer = setTimeout(() => {
+      DataHandler();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [page, limit, refresh]);
 
   useEffect(() => {
     let timerId;
@@ -327,6 +374,7 @@ const PaginationTableContainer = (props) => {
   const getDataSource = () => {
     let filterDictionary = {};
     let sortDictionary = {};
+
     if (efn === excelFileName) {
       filterDictionary = Object.assign(
         {},
@@ -339,106 +387,97 @@ const PaginationTableContainer = (props) => {
         ...sort.map((x) => ({ [x.columnName]: x.direction }))
       );
     }
+
     let dataSource = {
       Page: page,
       RowsPerPage: limit,
       Filters: filterDictionary,
       Sorts: sortDictionary,
-      ClientId: settings?.clientId ?? null,
-      // ClientId: "100",
+      CustomerId: user?.customerId ?? null,
       exceptionId: exceptionId ?? 0,
-
-      //columns: tableColumns?.filter(f => !f.hidden)?.field
     };
     return dataSource;
   };
 
-  // const getDataSource = () => {
-  //   let filterDictionary = {};
-  //   let sortDictionary = {};
-  //   if (efn === excelFileName) {
-  //     filterDictionary = Object.assign(
-  //       {},
-  //       ...filter.map((x) => ({
-  //         [x.columnName]: `${x.filterText}|${x.filterType}`,
-  //       }))
-  //     );
-  //     sortDictionary = Object.assign(
-  //       {},
-  //       ...sort.map((x) => ({ [x.columnName]: x.direction }))
-  //     );
-  //   }
-
-  //   let dataSource = {
-  //     Page: page,
-  //     RowsPerPage: limit,
-  //     Filters: filterDictionary,
-  //     Sorts: sortDictionary,
-  //     ClientId: "100",
-  //     ExceptionId: exceptionId?.toString() || "100",
-  //   };
-
-  //   console.log("📦 Sent DataSource:", dataSource);
-  //   return dataSource;
-  // };
-
-  // const clearDataSource = () => {
-  //     setInnerRows([])
-  //     setColumns({})
-  //     setTotalRowsCount(0)
-  //     dispatch(dataSourceActions.updateSliceValue({
-  //         tableName: dataFunctionName,
-  //         key: 'totalRows',
-  //         value: 0
-  //     }))
-  // }
-
   const DataHandler = useCallback(async () => {
-    const dataSource = getDataSource();
-    const token = localStorage.getItem("token");
+    setIsLoading(true);
+    // const dataSource = getDataSource();
+    // const token = localStorage.getItem("token");
 
     try {
-      const data = await getExceptionData(dataSource, token);
+      console.log("🚫 Skipping server call. Using mock data instead.");
 
-      const {
-        result: rows,
-        titles: columns,
-        totalRowsCount,
-        filterOptions,
-      } = data;
+      const data = [
+        { ID: 1, Name: "Example Row 1", Value: 42 },
+        { ID: 2, Name: "Example Row 2", Value: 17 },
+        { ID: 3, Name: "Example Row 3", Value: 99 },
+      ];
 
-      setInnerRows(rows || []);
-      setColumns(columns || {});
-      setTotalRowsCount(totalRowsCount || 0);
-      setFilterOptions(filterOptions || {});
+      let rows = [];
+      let columns = {};
+      let totalRowsCount = 0;
+
+      if (Array.isArray(data)) {
+        rows = data;
+      } else if (data && typeof data === "object") {
+        rows = [data];
+      } else {
+        rows = [];
+      }
+
+      if (rows.length > 0) {
+        const firstRow = rows[0];
+        columns = Object.keys(firstRow).reduce((acc, key) => {
+          acc[key] = typeof firstRow[key];
+          return acc;
+        }, {});
+      }
+      totalRowsCount = rows.length;
+      setInnerRows(rows);
+      setColumns(columns);
+      setTotalRowsCount(totalRowsCount);
     } catch (err) {
       console.error("❌ DataHandler failed:", err);
+    } finally {
+      setIsLoading(false);
     }
-  }, [getDataSource, excelFileName, exceptionId]);
+  }, []);
 
- const exportToExcelHandler = async () => {
-  try {
-    setIsLoadingExcel(true);
-    const token = localStorage.getItem("token");
-    await exportToExcel(getDataSource(), dataFunctionName, token, exceptionId, excelFileName);
-  } catch (err) {
-    console.error("❌ Excel export failed:", err);
-  } finally {
-    setIsLoadingExcel(false);
-  }
-};
+  const exportToExcelHandler = async () => {
+    try {
+      setIsLoadingExcel(true);
+      const token = localStorage.getItem("token");
+      await exportToExcel(
+        getDataSource(),
+        dataFunctionName,
+        token,
+        exceptionId,
+        excelFileName
+      );
+    } catch (err) {
+      console.error("❌ Excel export failed:", err);
+    } finally {
+      setIsLoadingExcel(false);
+    }
+  };
 
- const exportToCsvHandler = async () => {
-  try {
-    setIsLoadingCsv(true);
-    const token = localStorage.getItem("token");
-    await exportToCsv(getDataSource(), dataFunctionName, token, exceptionId, excelFileName);
-  } catch (err) {
-    console.error("❌ CSV export failed:", err);
-  } finally {
-    setIsLoadingCsv(false);
-  }
-};
+  const exportToCsvHandler = async () => {
+    try {
+      setIsLoadingCsv(true);
+      const token = localStorage.getItem("token");
+      await exportToCsv(
+        getDataSource(),
+        dataFunctionName,
+        token,
+        exceptionId,
+        excelFileName
+      );
+    } catch (err) {
+      console.error("❌ CSV export failed:", err);
+    } finally {
+      setIsLoadingCsv(false);
+    }
+  };
 
   const hideFilterHandler = () => {
     dispatch(
@@ -554,12 +593,111 @@ const PaginationTableContainer = (props) => {
   // const selectedSomeRecords =
   //     selectedRecords.length > 0 && selectedRecords.length < innerRows.length;
   //const selectedAllRecords = selectedRecords.length === innerRows.length;
-  const showTable = tableColumns && tableColumns.length > 0;
+  // const showTable = tableColumns && tableColumns.length > 0;
+  const showTable = columns && Object.keys(columns).length > 0;
+
   //console.log('filterOptions', filterOptions)
   return (
     <>
       {showTable ? (
         <Box>
+          <Box sx={{ mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
+            <Autocomplete
+              size="small"
+              options={reports}
+              getOptionLabel={(r) => r.biReportDesc || ""}
+              value={selectedReport}
+              onChange={(e, value) => handleSelectReport(value)}
+              renderInput={(params) => (
+                <TextField {...params} label="בחר דוח BI" variant="outlined" />
+              )}
+              sx={{ width: 350 }}
+            />
+
+            {selectedReport && (
+              <Typography variant="body2" color="text.secondary">
+                {selectedReport.biReportName}
+              </Typography>
+            )}
+          </Box>
+          {biFilters.length > 0 && (
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 2,
+                mb: 2,
+                p: 2,
+                border: "1px solid #ddd",
+                borderRadius: 2,
+                backgroundColor: "#fafafa",
+              }}
+            >
+              {biFilters.map((param, idx) => {
+                const value =
+                  innerFilter.find((f) => f.columnName === param.ParameterName)
+                    ?.filterText || "";
+                if (param.Type === "DATETIME") {
+                  return (
+                    <TextField
+                      key={idx}
+                      label={param.ParameterName}
+                      type="datetime-local"
+                      value={value}
+                      onChange={(e) =>
+                        handleFilter(
+                          e.target.value,
+                          "CONTAINS",
+                          param.ParameterName
+                        )
+                      }
+                      size="small"
+                      sx={{ width: 250 }}
+                    />
+                  );
+                }
+
+                if (param.Type === "INT") {
+                  return (
+                    <TextField
+                      key={idx}
+                      label={param.ParameterName}
+                      type="number"
+                      value={value}
+                      onChange={(e) =>
+                        handleFilter(
+                          e.target.value,
+                          "CONTAINS",
+                          param.ParameterName
+                        )
+                      }
+                      size="small"
+                      sx={{ width: 200 }}
+                    />
+                  );
+                }
+
+                return (
+                  <TextField
+                    key={idx}
+                    label={param.ParameterName}
+                    type="text"
+                    value={value}
+                    onChange={(e) =>
+                      handleFilter(
+                        e.target.value,
+                        "CONTAINS",
+                        param.ParameterName
+                      )
+                    }
+                    size="small"
+                    sx={{ width: 200 }}
+                  />
+                );
+              })}
+            </Box>
+          )}
+
           <PaginationTableToolbar
             exportToExcel={exportToExcelHandler}
             exportToCsv={exportToCsvHandler}
@@ -576,30 +714,33 @@ const PaginationTableContainer = (props) => {
             setSelectedRecord={setSelectedRecord}
             setSelectedAllRecords={setSelectedAllRecords}
           />
-          <PaginationTable
-            clearFilter={clearFilter}
-            handleFilter={handleFilter}
-            handleSort={handleSort}
-            onLimitChange={onLimitChange}
-            onPageChange={onPageChange}
-            innerRows={innerRows}
-            totalRowsCountUpdated={totalRows}
-            filter={innerFilter}
-            reorderColumnsHandler={reorderColumnsHandler}
-            isLoading={isLoading || isLoadingExcel || isLoadingCsv}
-            onRowDoubleClick={onRowDoubleClick}
-            onColumnWidthChanged={onColumnWidthChanged}
-            dataFunctionName={dataFunctionName}
-            anableSelectRows={anableSelectRows}
-            selectedRecords={selectedRecords}
-            selectedAllRecords={selectedAllRecords}
-            setSelectedRecord={setSelectedRecord}
-            onSelectAllRecords={onSelectAllRecords}
-            setSelectedAllRecords={onSelectOneRecord}
-            onSelectOneRecord={onSelectOneRecord}
-            filterOptions={filterOptions}
-            tableHeight={tableHeight}
-          />
+          <ThemeProvider theme={createTheme()}>
+            <PaginationTable
+              clearFilter={clearFilter}
+              handleFilter={handleFilter}
+              handleSort={handleSort}
+              onLimitChange={onLimitChange}
+              onPageChange={onPageChange}
+              innerRows={innerRows}
+              totalRowsCountUpdated={totalRows}
+              filter={innerFilter}
+              reorderColumnsHandler={reorderColumnsHandler}
+              isLoading={isLoading || isLoadingExcel || isLoadingCsv}
+              onRowDoubleClick={onRowDoubleClick}
+              onColumnWidthChanged={onColumnWidthChanged}
+              dataFunctionName={dataFunctionName}
+              anableSelectRows={anableSelectRows}
+              selectedRecords={selectedRecords}
+              selectedAllRecords={selectedAllRecords}
+              setSelectedRecord={setSelectedRecord}
+              onSelectAllRecords={onSelectAllRecords}
+              setSelectedAllRecords={onSelectOneRecord}
+              onSelectOneRecord={onSelectOneRecord}
+              filterOptions={filterOptions}
+              tableHeight={tableHeight}
+            />
+          </ThemeProvider>
+
           <SimplePopover
             open={open}
             anchorEl={anchorEl}

@@ -1,6 +1,5 @@
 import PageContainer from "../Components/PageContainer";
 import { useSettings } from "../Hooks/useSettings";
-// import PaginationTable from "../Components/PaginationTable";
 import PaginationTableParent from "../Components/PaginationTable/PaginationTableParent";
 const Dashboard = ({ children, exception }) => {
   const { texts } = useSettings();
@@ -10,8 +9,8 @@ const Dashboard = ({ children, exception }) => {
       {children}
       <PaginationTableParent
         exceptionId={exception?.ex_id}
-        url={`${process.env.REACT_APP_API_BASE_URL}RadioException/ExceptionData`}
-        dataFunctionName={"ExceptionData"}
+        url={`${process.env.REACT_APP_API_BASE_URL}TrafficReports/GetBIReports`}
+        dataFunctionName={"GetBIReports"}
         onRowDoubleClick={() => {}}
         excelFileName={exception?.ex_name}
         tableHeight={70}
